@@ -3,8 +3,8 @@
 
 
 import tkinter as tk
-import logika
-#import sah2.py
+#import logika
+import sah2
 
 
 def narisi_sahovnico(platno, velikost_polj, odmik):
@@ -20,7 +20,7 @@ def narisi_sahovnico(platno, velikost_polj, odmik):
 
 
 class Sahovnica:
-    print("RAZRED ŠAHOVNICA")
+    #print("RAZRED ŠAHOVNICA")
 
     def __init__(self, master):
         # nastavitve velikosti
@@ -71,23 +71,23 @@ class Sahovnica:
             return
 
 		#izračunamo dovoljene končne lokacije označene figure. shranimo v dovoljeni_drugi_kliki -seznam
-		dovoljeni_drugi_kliki = []
-		for poteza in self.sah.vrni_vse_mozne_poteze_za_figure_na_vrsti():
-			zx, zy, kx, ky = poteza
-			if (zx, zy) == (j,i):
-				dovoljeni_drugi_kliki.append((kx, ky))
-		#če ni dovoljenih drugih klikov smo s prvim klikom označili figuro ki se ne more premikat
-		if len(dovoljeni_drugi_kliki) == 0:
-			return
-		#preberemo drugi klik
-		k = int((event.y - self.odmik) // self.velikost_polj) # vrstica
+        dovoljeni_drugi_kliki = []
+        for poteza in self.sah.vrni_vse_mozne_poteze_za_figure_na_vrsti():
+            zx, zy, kx, ky = poteza
+            if (zx, zy) == (j,i):
+                dovoljeni_drugi_kliki.append((kx, ky))
+		    #če ni dovoljenih drugih klikov smo s prvim klikom označili figuro ki se ne more premikat
+            if len(dovoljeni_drugi_kliki) == 0:
+               return
+        #preberemo drugi klik
+        k = int((event.y - self.odmik) // self.velikost_polj) # vrstica
         l = int((event.x - self.odmik) // self.velikost_polj) # stolpec
-        
+      
         if not(sah2.v_sahovnici((l,k))): # klik izven šahovnice
             return
         
         if (l, k) in dovoljeni_drugi_kliki:
-			self.sah.naredi_potezo((j,i, l,k))
+            self.sah.naredi_potezo((j,i, l,k))
 
         if self.oznacena_figura is None:
             # jo označimo
@@ -137,12 +137,13 @@ class Sahovnica:
         self.prikaz_figur()
         # nastavi odštevalnik ure
 
-    
+##dodaj figura.foto v razred
+#prikaz figur. na voljo imamo self.sah.slika[] in self.sah.figure[]    
     def prikaz_figur(self):
         '''Na šahovnici prikaže figure.'''
         for i in range(8):
             for j in range(8):
-                figura = self.IGRA[i][j]
+                figura = self.sah.slika[j][i]
                 if figura is not None:
                     i, j = figura.polozaj # rišemo lahko direktno iz položaja figur, lahko bi tudi iz položaja v matriki
                     foto = figura.foto
