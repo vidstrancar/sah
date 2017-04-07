@@ -224,7 +224,7 @@ class konj(Figura):
 		Figura.__init__(self, polozaj, barva)
 		self.vrsta = 'konj'
 		self.vektorji_premika = [(1,2), (-1,2), (-2, 1), (-2, -1), (-1, -2), (1, -2), (2, -1), (2, 1)]
-	def dovoljeni_premiki_iterator(self, slika, igra):
+	def izracunaj_dovoljene_premike_iterator(self, slika, igra):
 		for x_premika, y_premika in self.vektorji_premika:
 			if v_sahovnici((self.x+x_premika, self.y+y_premika)): 
 				if slika[self.x+x_premika][self.y+y_premika] == None:
@@ -250,7 +250,7 @@ class kralj(Figura):
 		self.vrsta = 'kralj'
 		self.premaknjen = False
 		self.vektorji_premika = [(0,1), (1,1), (1,0), (1,-1), (0,-1), (-1,-1), (-1, 0), (-1,1)]
-	def dovoljeni_premiki_iterator(self, slika, igra): ##dodamo kot parameter še vse veljavne poteze nasprotnih, za preverjanje saha
+	def izracunaj_dovoljene_premike_iterator(self, slika, igra): ##dodamo kot parameter še vse veljavne poteze nasprotnih, za preverjanje saha
 		for x_premika, y_premika in self.vektorji_premika:
 			if v_sahovnici((self.x+x_premika, self.y+y_premika)): 
 				if slika[self.x+x_premika][self.y+y_premika] == None:
@@ -273,7 +273,7 @@ class kmet_bel(Figura):
 		self.premaknjen = True
 		self.x = x_koncen
 		self.y = y_koncen
-	def dovoljeni_premiki_iterator(self, slika, igra): ##dodaj en passeu
+	def izracunaj_dovoljene_premike_iterator(self, slika, igra): ##dodaj en passeu
 		for x_premika, y_premika in self.vektorji_premika:
 			if v_sahovnici((self.x+x_premika, self.y+y_premika)):
 				if (x_premika, y_premika) == (0,1) and slika[self.x+0][self.y+1] == None:
@@ -295,17 +295,17 @@ class kmet_crn(Figura):
 		self.premaknjen = True
 		self.x = x_koncen
 		self.y = y_koncen
-	def dovoljeni_premiki_iterator(self, slika, igra): ##dodaj en passeu, poglej ce povzroci sah, zamenjati kmeta za kraljico, pot do slike
+	def izracunaj_dovoljene_premike_iterator(self, slika, igra): ##dodaj en passeu, poglej ce povzroci sah, zamenjati kmeta za kraljico, pot do slike
 		for x_premika, y_premika in self.vektorji_premika:
 			if v_sahovnici((self.x+x_premika, self.y+y_premika)):
-				if (x_premika, y_premika) == (0,1) and slika[self.x+0][self.y+1] == None:
-					yield((self.x+0, self.y+1))
-				if (x_premika, y_premika) == (0,2) and slika[self.x+0][self.y+2] == None and not(self.premaknjen):
-					yield((self.x+0, self.y+2))
-				if  (x_premika, y_premika) == (1,1) and slika[self.x+1][self.y+1] != None and slika[self.x+1][self.y+1].barva != self.barva:
-					yield((self.x+1, self.y+1))
-				if (x_premika, y_premika) == (-1,1) and slika[self.x-1][self.y+1] != None and slika[self.x-1][self.y+1].barva != self.barva:
-					yield((self.x-1, self.y+1))
+				if (x_premika, y_premika) == (0,-1) and slika[self.x+0][self.y-1] == None:
+					yield((self.x+0, self.y-1))
+				if (x_premika, y_premika) == (0,-2) and slika[self.x+0][self.y-2] == None and not(self.premaknjen):
+					yield((self.x+0, self.y-2))
+				if  (x_premika, y_premika) == (-1,-1) and slika[self.x-1][self.y-1] != None and slika[self.x-1][self.y-1].barva != self.barva:
+					yield((self.x+1, self.y-1))
+				if (x_premika, y_premika) == (1,-1) and slika[self.x+1][self.y-1] != None and slika[self.x+1][self.y-1].barva != self.barva:
+					yield((self.x+1, self.y-1))
 
 
 class sah:
@@ -340,12 +340,12 @@ class sah:
 	def naredi_potezo(self, poteza):
 		x_z, y_z, x_k, y_k = poteza
 		self.igra.append(poteza)
-		figura = slika[x_z][y_z]
+		figura = self.slika[x_z][y_z]
 		figura.premakni((x_k, y_k))
 		self.slika[x_z][y_z] = None
-		self.slika[x_k][y_l] = figura
-		self.figure = slika_v_figure(slika)
-		self.na_vrsti = nasprotna_barva(na_vrsti)
+		self.slika[x_k][y_k] = figura
+		self.figure = slika_v_figure(self.slika)
+		self.na_vrsti = nasprotna_barva(self.na_vrsti)
 	def vrni_vse_mozne_poteze_za_figure_na_vrsti(self):
 		vse_mozne_poteze = []
 		for figura in self.figure[self.na_vrsti]:
@@ -359,7 +359,9 @@ class sah:
 
 sahec = sah()
 
-sahec.izpisi_figure_na_vrsti()
+#sahec.izpisi_figure_na_vrsti()
+#sahec.naredi_potezo((0,1,0,2))
+#sahec.izpisi_figure_na_vrsti()
 	
 #while len(sahec.vrni_vse_mozne_poteze_za_figure_na_vrsti()) != 0:
 #	print(sahec.vrni_vse_mozne_poteze_za_figure_na_vrsti())
