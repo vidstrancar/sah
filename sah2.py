@@ -4,7 +4,6 @@ def cross_product(v1, v2):
 	x1, y1, z1 = v1
 	x2, y2, z2 = v2
 	return (y1*z2-y2*z1, x2*z1-x1*z2, x1*y2-x2*y1)
-
 def vzporedna(v1, v2):
 	x1, y1 = v1
 	x2, y2 = v2
@@ -54,8 +53,8 @@ def slika_v_figure(slika):
 				else:
 					figure['crn'].append(element)
 	return figure
-
-def preberi_potezo(figure, na_vrsti, slika, igra):
+	
+def preberi_potezo(figure, na_vrsti, slika, igra): ##preveri vnos (tukaj??)
 	dovoljen_vnos = False
 	zacetni_x=zacetni_y=koncni_x=koncni_y=0
 	while not(dovoljen_vnos):
@@ -65,9 +64,7 @@ def preberi_potezo(figure, na_vrsti, slika, igra):
 		zacetni_y=int(parametri_vnosa[1])
 		koncni_x=int(parametri_vnosa[2])
 		koncni_y=int(parametri_vnosa[3])
-		if (zacetni_x, zacetni_y, koncni_x, koncni_y) in vse_dovoljene_poteze(figure, slika, igra):
-			dovoljen_vnos = True
-	return (zacetni_x, zacetni_y, koncni_x, koncni_y)		
+	return (zacetni_x, zacetni_y, koncni_x, koncni_y)			
 def narisi_sliko(slika):
 	for vrstica in slika:
 		vrstica = ' '
@@ -96,6 +93,7 @@ def bo_sah_po_potezi(igra, slika, figure, poteza, na_vrsti, kralj): ##poteza v f
 	#torej ne premikamo kralja.
 	#ali je sah? ce je, je med nasprotnikovimi moznimi potezami, da pojejo nasega kralja je šah.
 	#Moramo ga torej preprečiti.
+	#napiši funkcijo je_sah(slika, kralj_na_vrsti)
 	figure_ki_napadajo_nasega_kralja = []
 	for figura in figure[nasprotna_barva(na_vrsti)]:
 		for poteza in figura.dovoljene_poteze_iterator(slika, igra):
@@ -185,7 +183,7 @@ class Figura:
 		self.x = x_koncen
 		self.y = y_koncen
 	def	dovoljene_poteze_iterator(self, slika, igra):
-		figure = slika_v_figure(slika)
+		figure = slika_v_figure(slika) ###mogoče to ne dela???
 		na_vrsti = self.barva
 		#poiščemo kralja
 		for figura in figure[na_vrsti]:
@@ -197,7 +195,6 @@ class Figura:
 			poteza = (self.x,self.y,x_koncna,y_koncna)
 			if not(bo_sah_po_potezi(igra, slika, figure, poteza, na_vrsti, kralj)): 
 				yield poteza
-				
 	def __str__(self, slika, igra):
 		izpis = 'figura: ' + self.barva + ' ' + self.vrsta + '\n'
 		izpis += '\tlokacija: ' + str(self.x) + ',' + str(self.y) + '\n'
@@ -357,7 +354,7 @@ class sah:
 			print(figura.__str__(self.slika, self.igra))
 		
 
-sahec = sah()
+#sahec = sah()
 
 #sahec.izpisi_figure_na_vrsti()
 #sahec.naredi_potezo((0,1,0,2))
