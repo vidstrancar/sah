@@ -40,19 +40,12 @@ class Sahovnica:
         self.dovoljeni_drugi_kliki = []
         self.prvi_klikx = self.prvi_kliky = 0
         self.sah = sah2.sah()
-
         self.oznacena_figura = None
-
-
-
         # narišemo šahovnico
         narisi_sahovnico(self.platno, self.velikost_polj, self.odmik)
-
         # registriramo se za klike z miško
         self.platno.bind('<Button-1>', self.klik)
-
         # naredimo oznako za izpisovanje
-
         self.okvir_oznake = tk.LabelFrame(self.platno)
         self.okvir_oznake.pack() 
         self.izpis_potez = tk.StringVar(value='klikni nekam')
@@ -61,11 +54,7 @@ class Sahovnica:
         x, y = self.odmik + 8 * self.velikost_polj / 2, self.odmik / 2
         self.platno.create_window(x, y, window=self.okvir_oznake, width = 140)
         # self.platno.create_text(600, 20, text=self.izpis_potez.get()) ZAKAJ SE TO NE SPREMINJA?
-
-
         self.zacni_igro()
-
-
     def klik(self, event):
         if self.prvi_klik:
             #preberemo prvi klik (označimo figuro ki jo želimo premikat)
@@ -88,7 +77,6 @@ class Sahovnica:
             for poteza in self.dovoljene_poteze:
                 xz, yz, xk, yk = poteza
                 pobarvane_tocke.append((xk,yk))
-            print('pobarvane_tocke: ', pobarvane_tocke)
             self.prikaz_figur(plave_tocke = pobarvane_tocke)
             return
 		#izračunamo dovoljene končne lokacije označene figure. shranimo v dovoljeni_drugi_kliki -seznam
@@ -108,9 +96,6 @@ class Sahovnica:
         '''Prične igro.'''
         self.prikaz_figur()
         # nastavi odštevalnik ure
-
-##dodaj figura.foto v razred
-#prikaz figur. na voljo imamo self.sah.slika[] in self.sah.figure[]    
     def prikaz_figur(self, plave_tocke = []):
         narisi_sahovnico(self.platno, self.velikost_polj, self.odmik, plave_tocke)
         bele = self.sah.figure['bel']

@@ -318,7 +318,7 @@ class kmet_crn(Figura):
 				if (x_premika, y_premika) == (0,-2) and slika[self.x+0][self.y-2] == None and not(self.premaknjen):
 					yield((self.x+0, self.y-2))
 				if  (x_premika, y_premika) == (-1,-1) and slika[self.x-1][self.y-1] != None and slika[self.x-1][self.y-1].barva != self.barva:
-					yield((self.x+1, self.y-1))
+					yield((self.x-1, self.y-1))
 				if (x_premika, y_premika) == (1,-1) and slika[self.x+1][self.y-1] != None and slika[self.x+1][self.y-1].barva != self.barva:
 					yield((self.x+1, self.y-1))
 
