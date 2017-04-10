@@ -22,7 +22,7 @@ class Kralj:
     def __init__(self, barva, polozaj):
         self.polozaj = polozaj
         self.barva = barva
-        self.foto = tk.PhotoImage(file=r"slike_figur\kralj_{}.png".format(self.barva))
+        self.foto = tk.PhotoImage(file=r"slike_figur\kralj_{}.gif".format(self.barva))
         self.id_slike = None
 
     def __repr__(self):
@@ -36,7 +36,7 @@ class Dama:
     def __init__(self, barva, polozaj):
         self.polozaj = polozaj
         self.barva = barva
-        self.foto = tk.PhotoImage(file=r"slike_figur\dama_{}.png".format(self.barva))
+        self.foto = tk.PhotoImage(file=r"slike_figur\dama_{}.gif".format(self.barva))
         self.id_slike = None
 
     def __repr__(self):
@@ -47,7 +47,7 @@ class Konj:
     def __init__(self, barva, polozaj):
         self.polozaj = polozaj
         self.barva = barva
-        self.foto = tk.PhotoImage(file=r"slike_figur\konj_{}.png".format(self.barva))
+        self.foto = tk.PhotoImage(file=r"slike_figur\konj_{}.gif".format(self.barva))
         self.id_slike = None
         print('zameril si se mi, KONJ!')
 
@@ -60,7 +60,7 @@ class Lovec:
     def __init__(self, barva, polozaj):
         self.polozaj = polozaj
         self.barva = barva
-        self.foto = tk.PhotoImage(file=r"slike_figur\lovec_{}.png".format(self.barva))
+        self.foto = tk.PhotoImage(file=r"slike_figur\lovec_{}.gif".format(self.barva))
         self.id_slike = None
         print('sezona lova')
 
@@ -77,7 +77,7 @@ class Trdnjava:
 
 
         self.barva = barva
-        self.foto = tk.PhotoImage(file=r"slike_figur\trdnjava_{}.png".format(self.barva))
+        self.foto = tk.PhotoImage(file=r"slike_figur\trdnjava_{}.gif".format(self.barva))
         self.id_slike = None
 
     def __repr__(self):
@@ -89,7 +89,7 @@ class Kmet:
         self.polozaj = polozaj
         print('kmetov mnogo')
         self.barva = barva
-        self.foto = tk.PhotoImage(file=r"slike_figur\kmet_{}.png".format(self.barva))
+        self.foto = tk.PhotoImage(file=r"slike_figur\kmet_{}.gif".format(self.barva))
         self.id_slike = None
 
     def __repr__(self):
