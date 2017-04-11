@@ -2,8 +2,8 @@ import math
 import tkinter as tk
 import os
 
-#os.path.join(dir = os.path.dirname(__file__), r"/slike_figur/kraljica_{}i.png".format(self.barva)
-#self.foto = tk.PhotoImage(file=r"slike_figur\kraljica_{}i.png".format(self.barva))
+#os.path.join(dir = os.path.dirname(__file__), r"/slike_figur/kraljica_{}i.gif".format(self.barva)
+#self.foto = tk.PhotoImage(file=r"slike_figur\kraljica_{}i.gif".format(self.barva))
 
 
 def cross_product(v1, v2):
@@ -18,7 +18,7 @@ def vzporedna(v1, v2):
 		return True
 def normiraj(v1):
 	x, y, z = v1
-	dolzina = math.sqrt(x**2+y**2+z**2) 
+	dolzina = math.sqrt(x**2+y**2+z**2)
 	return (x/dolzina, y/dolzina, z/dolzina)
 #normalen, če vzporeden enemu izmed osnovnih osmih premikov. Kateremu, sicer False
 def normalen(v1):
@@ -30,18 +30,18 @@ def normalen(v1):
 			xn, yn, zn = normalen_vektor
 			return (xn, yn)
 	return False
-	
+
 def v_sahovnici(polozaj):
 	x, y = polozaj
 	if 0 <= x <= 7 and 0 <= y <= 7:
 		return True
 	else:
-		return False		
+		return False
 def nasprotna_barva(barva):
 	if barva == 'bel':
 		return 'crn'
 	else:
-		return 'bel'		
+		return 'bel'
 
 def figure_v_sliko(figure):  ##popravi
 	slika = [[None]*8 for i in range(8)]
@@ -61,7 +61,7 @@ def slika_v_figure(slika):
 				else:
 					figure['crn'].append(element)
 	return figure
-	
+
 def preberi_potezo(figure, na_vrsti, slika, igra): ##preveri vnos (tukaj??)
 	dovoljen_vnos = False
 	zacetni_x=zacetni_y=koncni_x=koncni_y=0
@@ -72,7 +72,7 @@ def preberi_potezo(figure, na_vrsti, slika, igra): ##preveri vnos (tukaj??)
 		zacetni_y=int(parametri_vnosa[1])
 		koncni_x=int(parametri_vnosa[2])
 		koncni_y=int(parametri_vnosa[3])
-	return (zacetni_x, zacetni_y, koncni_x, koncni_y)			
+	return (zacetni_x, zacetni_y, koncni_x, koncni_y)
 def narisi_sliko(slika):
 	for vrstica in slika:
 		vrstica = ' '
@@ -83,7 +83,7 @@ def narisi_sliko(slika):
 				print("tlele")
 				vrstica += element.barva+element.vrsta
 		print(vrstica)
-	
+
 def bo_sah_po_potezi(igra, slika, figure, poteza, na_vrsti, kralj): ##poteza v formatu (zacetni x, zace. y, koncni x, konc. y)
 	x_z, y_z, x_k, y_k = poteza
 	#če premikamo kralja, moramo poskrbeti, da ne bo pod šahom
@@ -101,7 +101,7 @@ def bo_sah_po_potezi(igra, slika, figure, poteza, na_vrsti, kralj): ##poteza v f
 	#torej ne premikamo kralja.
 	#ali je sah? ce je, je med nasprotnikovimi moznimi potezami, da pojejo nasega kralja je šah.
 	#Moramo ga torej preprečiti.
-	
+
 	#napiši funkcijo je_sah(slika, kralj_na_vrsti)
 	#figure_ki_napadajo_nasega_kralja = []
 	#for figura in figure[nasprotna_barva(na_vrsti)]:
@@ -145,9 +145,9 @@ def bo_sah_po_potezi(igra, slika, figure, poteza, na_vrsti, kralj): ##poteza v f
 			figura.premakni((x_k, y_k))
 			slika[x_z][y_z] = None
 			slika[x_k][y_k] = figura
-			figure = slika_v_figure(slika)		
+			figure = slika_v_figure(slika)
 			n = 1
-			while v_sahovnici((kralj.x+n*x_premika, kralj.y+n*y_premika)): 
+			while v_sahovnici((kralj.x+n*x_premika, kralj.y+n*y_premika)):
 				if slika[kralj.x+n*x_premika][kralj.y+n*y_premika] != None:
 					if slika[kralj.x+n*x_premika][kralj.y+n*y_premika].barva == na_vrsti:
 						return False
@@ -165,7 +165,7 @@ def bo_sah_po_potezi(igra, slika, figure, poteza, na_vrsti, kralj): ##poteza v f
 				n+=1
 			#če pridemo ven iz šahovnice brez da bi naleteli na figuro je poteza dovoljena (ni šaha)
 			return False
-				
+
 class Figura:
 	def __init__(self, polozaj, barva):
 		self.ziv = True
@@ -177,7 +177,7 @@ class Figura:
 	def izracunaj_dovoljene_premike_iterator(self, slika, igra): ##vraca tocke(na sahovnici) na katere se lahko premaknemo z to figuro
 		for x_premika, y_premika in self.vektorji_premika:
 			n = 1
-			while v_sahovnici((self.x+n*x_premika, self.y+n*y_premika)): 
+			while v_sahovnici((self.x+n*x_premika, self.y+n*y_premika)):
 				if slika[self.x+n*x_premika][self.y+n*y_premika] == None:
 					yield((self.x+n*x_premika, self.y+n*y_premika))
 				else:
@@ -200,11 +200,11 @@ class Figura:
 		for figura in figure[na_vrsti]:
 			if figura.vrsta == 'kralj':
 				kralj = figura
-				
+
 		for premik in self.izracunaj_dovoljene_premike_iterator(slika, igra):
 			x_koncna, y_koncna = premik
 			poteza = (self.x,self.y,x_koncna,y_koncna)
-			#if not(bo_sah_po_potezi(igra, slika, figure, poteza, na_vrsti, kralj)): 
+			#if not(bo_sah_po_potezi(igra, slika, figure, poteza, na_vrsti, kralj)):
 			yield poteza
 	def __str__(self, slika, igra):
 		izpis = 'figura: ' + self.barva + ' ' + self.vrsta + '\n'
@@ -215,29 +215,29 @@ class Figura:
 			izpis += '(' + str(x) + ',' + str(y) + '), '
 		izpis += '\n'
 		return izpis
-				
-		
+
+
 class kraljica(Figura):
 	def __init__(self, polozaj, barva):
 		Figura.__init__(self, polozaj, barva)
 		self.vrsta = 'kraljica'
 		self.vektorji_premika = [(-1,1), (1,1), (-1, -1), (1, -1), (0,1), (0,-1), (1, 0), (-1, 0)]
-		self.foto = tk.PhotoImage(file=r"slike_figur/kraljica_{}i.png".format(self.barva))
+		self.foto = tk.PhotoImage(file=r"slike_figur/kraljica_{}i.gif".format(self.barva))
 class lovec(Figura):
 	def __init__(self, polozaj, barva):
 		Figura.__init__(self, polozaj, barva)
 		self.vrsta = 'lovec'
 		self.vektorji_premika = [(-1,1), (1,1), (-1, -1), (1, -1)]
-		self.foto = tk.PhotoImage(file=r"slike_figur/lovec_{}i.png".format(self.barva))
+		self.foto = tk.PhotoImage(file=r"slike_figur/lovec_{}i.gif".format(self.barva))
 class konj(Figura):
 	def __init__(self, polozaj, barva):
 		Figura.__init__(self, polozaj, barva)
 		self.vrsta = 'konj'
 		self.vektorji_premika = [(1,2), (-1,2), (-2, 1), (-2, -1), (-1, -2), (1, -2), (2, -1), (2, 1)]
-		self.foto = tk.PhotoImage(file=r"slike_figur/konj_{}i.png".format(self.barva))
+		self.foto = tk.PhotoImage(file=r"slike_figur/konj_{}i.gif".format(self.barva))
 	def izracunaj_dovoljene_premike_iterator(self, slika, igra):
 		for x_premika, y_premika in self.vektorji_premika:
-			if v_sahovnici((self.x+x_premika, self.y+y_premika)): 
+			if v_sahovnici((self.x+x_premika, self.y+y_premika)):
 				if slika[self.x+x_premika][self.y+y_premika] == None:
 					yield((self.x+x_premika, self.y+y_premika))
 				elif slika[self.x+x_premika][self.y+y_premika].barva != self.barva:
@@ -248,7 +248,7 @@ class trdnjava(Figura):
 		self.vrsta = 'trdnjava'
 		self.premaknjen = False
 		self.vektorji_premika = [(0,1), (0,-1), (1, 0), (-1, 0)]
-		self.foto = tk.PhotoImage(file=r"slike_figur/trdnjava_{}i.png".format(self.barva))
+		self.foto = tk.PhotoImage(file=r"slike_figur/trdnjava_{}i.gif".format(self.barva))
 	def premakni(self, koncna_lokacija): ##mogoče da bi naredili preverjanje veljavnosti poteze tukaj???
 		x_koncen, y_koncen = koncna_lokacija
 		self.premaknjen = True
@@ -256,16 +256,16 @@ class trdnjava(Figura):
 		self.y = y_koncen
 class kralj(Figura):
 	def __init__(self, polozaj, barva):
-		Figura.__init__(self, polozaj, barva)		
+		Figura.__init__(self, polozaj, barva)
 		self.sah_mat = False
 		self.barva = barva
 		self.vrsta = 'kralj'
 		self.premaknjen = False
 		self.vektorji_premika = [(0,1), (1,1), (1,0), (1,-1), (0,-1), (-1,-1), (-1, 0), (-1,1)]
-		self.foto = tk.PhotoImage(file=r"slike_figur/kralj_{}i.png".format(self.barva)) ##pa ja nje v figuri!
+		self.foto = tk.PhotoImage(file=r"slike_figur/kralj_{}i.gif".format(self.barva)) ##pa ja nje v figuri!
 	def izracunaj_dovoljene_premike_iterator(self, slika, igra): ##dodamo kot parameter še vse veljavne poteze nasprotnih, za preverjanje saha
 		for x_premika, y_premika in self.vektorji_premika:
-			if v_sahovnici((self.x+x_premika, self.y+y_premika)): 
+			if v_sahovnici((self.x+x_premika, self.y+y_premika)):
 				if slika[self.x+x_premika][self.y+y_premika] == None:
 					yield((x_premika, y_premika))
 				elif slika[self.x+x_premika][self.y+y_premika].barva != self.barva:
@@ -281,7 +281,7 @@ class kmet_bel(Figura):
 		self.premaknjen = False
 		self.vrsta = 'kmet'
 		self.vektorji_premika = [(0,1),(0,2),(1,1),(-1,1)]
-		self.foto = tk.PhotoImage(file=r"slike_figur/kmet_beli.png")
+		self.foto = tk.PhotoImage(file=os.path.join("slike_figur","kmet_beli.gif"))
 	def premakni(self, koncna_lokacija): ##mogoče da bi naredili preverjanje veljavnosti poteze tukaj???
 		x_koncen, y_koncen = koncna_lokacija
 		self.premaknjen = True
@@ -304,7 +304,7 @@ class kmet_crn(Figura):
 		self.premaknjen = False
 		self.vrsta = 'kmet'
 		self.vektorji_premika = [(0,-1),(0,-2),(-1,-1),(1,-1)]
-		self.foto = tk.PhotoImage(file=r"slike_figur/kmet_crni.png")
+		self.foto = tk.PhotoImage(file=r"slike_figur/kmet_crni.gif")
 	def premakni(self, koncna_lokacija): ##mogoče da bi naredili preverjanje veljavnosti poteze tukaj???
 		x_koncen, y_koncen = koncna_lokacija
 		self.premaknjen = True
@@ -324,7 +324,7 @@ class kmet_crn(Figura):
 
 
 class sah:
-	def __init__(self):	
+	def __init__(self):
 		self.igra = []
 		self.na_vrsti = 'bel'
 		self.figure = {'bel':[kmet_bel((0,1)), kmet_bel((1,1)), kmet_bel((2,1)), kmet_bel((3,1)), kmet_bel((4,1)), kmet_bel((5,1)), kmet_bel((6,1)),
@@ -332,16 +332,17 @@ class sah:
 				lovec((2, 0), 'bel'), lovec((5, 0), 'bel'),
 				trdnjava((0,0), 'bel'), trdnjava((7,0), 'bel'),
 				konj((1,0), 'bel'), konj((6,0), 'bel'),
-				kraljica((3,0), 'bel'), 
+				kraljica((3,0), 'bel'),
 				kralj((4,0), 'bel')],
 		  'crn':[kmet_crn((0,6)), kmet_crn((1,6)), kmet_crn((2,6)), kmet_crn((3,6)), kmet_crn((4,6)), kmet_crn((5,6)), kmet_crn((6,6)),
 				kmet_crn((7,6)),
 				lovec((0,4), 'crn'), lovec((5,7), 'crn'),
 				konj((1,7), 'crn'), konj((6,7), 'crn'),
 				trdnjava((0,7), 'crn'), trdnjava((7,7), 'crn'),
-				kraljica((3,7), 'crn'), 
-				kralj((4,7), 'crn')]} 	
-		self.slika = figure_v_sliko(self.figure)		
+				kraljica((3,7), 'crn'),
+				kralj((4,7), 'crn')]}
+		self.slika = figure_v_sliko(self.figure)
+
 	def vrni_kralja_na_vrsti(self):
 		for figura in figure[self.na_vrsti]:
 			if figura.vrsta == 'kralj':
@@ -367,17 +368,16 @@ class sah:
 	def izpisi_figure_na_vrsti(self):
 		for figura in self.figure[self.na_vrsti]:
 			print(figura.__str__(self.slika, self.igra))
-		
+
 
 #sahec = sah()
 
 #sahec.izpisi_figure_na_vrsti()
 #sahec.naredi_potezo((0,1,0,2))
 #sahec.izpisi_figure_na_vrsti()
-	
+
 #while len(sahec.vrni_vse_mozne_poteze_za_figure_na_vrsti()) != 0:
 #	print(sahec.vrni_vse_mozne_poteze_za_figure_na_vrsti())
 #	poteza = preberi_potezo(figure, na_vrsti, slika, igra)
 #	if poteza in sahec.vrni_vse_mozne_poteze_za_figure_na_vrsti():
 #		sahec.naredi_potezo(poteza)
-	
