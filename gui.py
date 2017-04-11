@@ -1,28 +1,12 @@
 # GUI: risanje in zaznavanje klikov
 
+# Zvrsti graficnih objektov
+POLJE="polje" # ta se nariše enkrat in se potem ne briše več
+FIGURA="figura"
+PLAVI="plavi"
 
 import tkinter as tk
 import sah2
-
-
-def narisi_sahovnico(platno, velikost_polj, odmik, plave_tocke = []):
-    '''Nariše šahovnico 8d X 8d. Desno spodaj je belo polje.'''
-    x1, y1 = odmik, odmik # določimo odmik
-    for i in range(8): # vrstice
-        for j in range(8): # stolpci
-            barva = ''
-            if (i + j) % 2 == 0:
-                barva = 'white'
-            else:
-                barva = 'gray'
-            if (j, i) in plave_tocke:
-                print("barvo smo spremenili")
-                barva = "blue"
-            platno.create_rectangle(x1, y1, x1 + velikost_polj, y1 + velikost_polj, fill=barva)
-            x1 += velikost_polj # naslednji kvadratek v vrsti
-        x1, y1 = odmik, odmik + velikost_polj * (i + 1) # premaknemo se eno vrstico navzdol
-
-
 
 
 class Sahovnica:
@@ -42,14 +26,14 @@ class Sahovnica:
         self.oznacena_figura = None
 
         # narišemo šahovnico
-        narisi_sahovnico(self.platno, self.velikost_polj, self.odmik)
+        self.narisi_sahovnico()
 
         # registriramo se za klike z miško
         self.platno.bind('<Button-1>', self.klik)
 
         # naredimo oznako za izpisovanje
         self.okvir_oznake = tk.LabelFrame(self.platno)
-        self.okvir_oznake.pack() 
+        self.okvir_oznake.pack()
         self.izpis_potez = tk.StringVar(value='klikni nekam')
         oznaka_izpis_potez = tk.Label(self.okvir_oznake, textvariable=self.izpis_potez)
         oznaka_izpis_potez.pack()
@@ -66,11 +50,19 @@ class Sahovnica:
             for j in range(8):  # stolpci
                 barva = "white" if (i + j) % 2 == 0 else "gray"
                 id_polja = self.platno.create_rectangle(x1, y1, x1 + self.velikost_polj, y1 + self.velikost_polj,
-                                                        fill=barva)
+                                                        fill=barva, tag=POLJE)
                 matrika_id[i][j] = id_polja
                 x1 += self.velikost_polj  # naslednji kvadratek v vrsti
             x1, y1 = self.odmik, self.odmik + self.velikost_polj * (i + 1)  # premaknemo se eno vrstico navzdol
         return matrika_id
+
+    def narisi_plave(self, plave_tocke):
+        '''Nariše šahovnico 8d X 8d. Desno spodaj je belo polje.'''
+        for (j, i) in plave_tocke:
+            barva = "blue"
+            x1 = self.odmik + j * self.velikost_polj
+            y1 = self.odmik + i * self.velikost_polj
+            self.platno.create_rectangle(x1, y1, x1 + self.velikost_polj, y1 + self.velikost_polj, fill=barva, tag=PLAVI)
 
 
     def klik(self, event):
@@ -80,8 +72,8 @@ class Sahovnica:
             j = int((event.x - self.odmik) // self.velikost_polj) # stolpec
             if sah2.v_sahovnici((j,i)) and (self.sah.slika[j][i] != None) and (self.sah.na_vrsti == self.sah.slika[j][i].barva):
                 self.dovoljene_poteze = list(self.sah.slika[j][i].dovoljene_poteze_iterator(self.sah.slika, self.sah.igra))
-            else: 
-                return 
+            else:
+                return
             if len(self.dovoljene_poteze) == 0:
                 self.prvi_klik = True
                 return
@@ -115,16 +107,19 @@ class Sahovnica:
         self.prikaz_figur()
         # nastavi odštevalnik ure
     def prikaz_figur(self, plave_tocke = []):
-        narisi_sahovnico(self.platno, self.velikost_polj, self.odmik, plave_tocke)
+        self.platno.delete(FIGURA)
+        self.platno.delete(PLAVI)
+        self.narisi_plave(plave_tocke)
         bele = self.sah.figure['bel']
         crne = self.sah.figure['crn']
         for figura in bele + crne:
             foto = figura.foto
             x = self.odmik + (figura.x * self.velikost_polj) + self.velikost_polj/2
             y = self.odmik + (figura.y * self.velikost_polj) + self.velikost_polj/2
-            foto_id = self.platno.create_image(x, y, image=foto)
+            foto_id = self.platno.create_image(x, y, image=foto, tag=FIGURA)
             figura.foto_id = foto_id
-			
+
+
 root = tk.Tk()
 
 partija_saha = Sahovnica(root)

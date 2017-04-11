@@ -3,8 +3,8 @@ import tkinter as tk
 import os
 
 
-# os.path.join(dir = os.path.dirname(__file__), r"/slike_figur/kraljica_{}i.png".format(self.barva)
-# self.foto = tk.PhotoImage(file=r"slike_figur\kraljica_{}i.png".format(self.barva))
+#os.path.join(dir = os.path.dirname(__file__), r"/slike_figur/kraljica_{}i.gif".format(self.barva)
+#self.foto = tk.PhotoImage(file=r"slike_figur\kraljica_{}i.gif".format(self.barva))
 
 
 def cross_product(v1, v2):
@@ -52,6 +52,10 @@ def nasprotna_barva(barva):
         return 'crn'
     else:
         return 'bel'
+
+	# x, y, z = v1
+	# dolzina = math.sqrt(x**2+y**2+z**2)
+	# return (x/dolzina, y/dolzina, z/dolzina)
 
 
 def figure_v_sliko(figure):  ##popravi
