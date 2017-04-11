@@ -1,9 +1,7 @@
-# šahovnica
-# GUI: tukaj se riše in zaznava klike, za pravila povprašamo logiko
+# GUI: risanje in zaznavanje klikov
 
 
 import tkinter as tk
-#import logika
 import sah2
 
 
@@ -23,28 +21,32 @@ def narisi_sahovnico(platno, velikost_polj, odmik, plave_tocke = []):
             platno.create_rectangle(x1, y1, x1 + velikost_polj, y1 + velikost_polj, fill=barva)
             x1 += velikost_polj # naslednji kvadratek v vrsti
         x1, y1 = odmik, odmik + velikost_polj * (i + 1) # premaknemo se eno vrstico navzdol
-	
+
 
 
 
 class Sahovnica:
-    #print("RAZRED ŠAHOVNICA")
 
     def __init__(self, master):
         # nastavitve velikosti
         self.velikost_polj = 100
         self.odmik = 30
+
         self.platno = tk.Canvas(master, width=self.velikost_polj * 10, height=self.velikost_polj * 10)
         self.platno.pack()
+
         self.prvi_klik = True
         self.dovoljeni_drugi_kliki = []
         self.prvi_klikx = self.prvi_kliky = 0
         self.sah = sah2.sah()
         self.oznacena_figura = None
+
         # narišemo šahovnico
         narisi_sahovnico(self.platno, self.velikost_polj, self.odmik)
+
         # registriramo se za klike z miško
         self.platno.bind('<Button-1>', self.klik)
+
         # naredimo oznako za izpisovanje
         self.okvir_oznake = tk.LabelFrame(self.platno)
         self.okvir_oznake.pack() 
@@ -55,6 +57,22 @@ class Sahovnica:
         self.platno.create_window(x, y, window=self.okvir_oznake, width = 140)
         # self.platno.create_text(600, 20, text=self.izpis_potez.get()) ZAKAJ SE TO NE SPREMINJA?
         self.zacni_igro()
+
+    def narisi_sahovnico(self):
+        '''Nariše šahovnico 8d X 8d. Desno spodaj je belo polje.'''
+        x1, y1 = self.odmik, self.odmik  # določimo odmik
+        matrika_id = [[None for i in range(8)] for j in range(8)]
+        for i in range(8):  # vrstice
+            for j in range(8):  # stolpci
+                barva = "white" if (i + j) % 2 == 0 else "gray"
+                id_polja = self.platno.create_rectangle(x1, y1, x1 + self.velikost_polj, y1 + self.velikost_polj,
+                                                        fill=barva)
+                matrika_id[i][j] = id_polja
+                x1 += self.velikost_polj  # naslednji kvadratek v vrsti
+            x1, y1 = self.odmik, self.odmik + self.velikost_polj * (i + 1)  # premaknemo se eno vrstico navzdol
+        return matrika_id
+
+
     def klik(self, event):
         if self.prvi_klik:
             #preberemo prvi klik (označimo figuro ki jo želimo premikat)
@@ -112,13 +130,3 @@ root = tk.Tk()
 partija_saha = Sahovnica(root)
 
 root.mainloop()
-
-
-#===========================================================#
-#                  NASVETI PROFESORJA                       #
-#===========================================================#
-# matrika je zaradi rekonstrukcije, zato da programer vidi, kaj se dogaja
-# IGRA v logiki
-# najprej spremeniš v logiki, nato sporočiš GUI, da nariše drugam
-# class Figura: x, y, barva -> kar je skupno vsem figuram
-# class Kmet(Figura): mozne poteze, slika
