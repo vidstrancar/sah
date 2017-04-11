@@ -57,7 +57,7 @@ class Sahovnica:
         return matrika_id
 
     def narisi_plave(self, plave_tocke):
-        '''Nariše šahovnico 8d X 8d. Desno spodaj je belo polje.'''
+        '''Z modro pobarva polja, na katere se označena figura lahko premakne..'''
         for (j, i) in plave_tocke:
             barva = "blue"
             x1 = self.odmik + j * self.velikost_polj
@@ -66,6 +66,7 @@ class Sahovnica:
 
 
     def klik(self, event):
+        '''Prebere prvi in drugi klik.'''
         if self.prvi_klik:
             #preberemo prvi klik (označimo figuro ki jo želimo premikat)
             i = int((event.y - self.odmik) // self.velikost_polj) # vrstica
@@ -89,8 +90,10 @@ class Sahovnica:
                 pobarvane_tocke.append((xk,yk))
             self.prikaz_figur(plave_tocke = pobarvane_tocke)
             return
+
 		#izračunamo dovoljene končne lokacije označene figure. shranimo v dovoljeni_drugi_kliki -seznam
         #preberemo drugi klik
+
         k = int((event.y - self.odmik) // self.velikost_polj) # vrstica
         l = int((event.x - self.odmik) // self.velikost_polj) # stolpec
         if sah2.v_sahovnici((l,k)) and (self.prvi_klikx, self.prvi_kliky, l, k) in self.dovoljene_poteze:
@@ -102,11 +105,15 @@ class Sahovnica:
             return
         self.prvi_klik = True
         self.prikaz_figur()
+
     def zacni_igro(self):
         '''Prične igro.'''
         self.prikaz_figur()
         # nastavi odštevalnik ure
+
+
     def prikaz_figur(self, plave_tocke = []):
+        '''Pobriše vse figure in nariše nove.'''
         self.platno.delete(FIGURA)
         self.platno.delete(PLAVI)
         self.narisi_plave(plave_tocke)
