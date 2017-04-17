@@ -252,7 +252,7 @@ class kraljica(Figura):
         Figura.__init__(self, polozaj, barva)
         self.vrsta = 'kraljica'
         self.vektorji_premika = [(-1, 1), (1, 1), (-1, -1), (1, -1), (0, 1), (0, -1), (1, 0), (-1, 0)]
-        self.foto = tk.PhotoImage(file=r"slike_figur/kraljica_{}i.png".format(self.barva))
+        self.foto = tk.PhotoImage(file=r"slike_figur/kraljica_{}i.gif".format(self.barva))
 
 
 class lovec(Figura):
@@ -260,7 +260,7 @@ class lovec(Figura):
         Figura.__init__(self, polozaj, barva)
         self.vrsta = 'lovec'
         self.vektorji_premika = [(-1, 1), (1, 1), (-1, -1), (1, -1)]
-        self.foto = tk.PhotoImage(file=r"slike_figur/lovec_{}i.png".format(self.barva))
+        self.foto = tk.PhotoImage(file=r"slike_figur/lovec_{}i.gif".format(self.barva))
 
 
 class konj(Figura):
@@ -268,7 +268,7 @@ class konj(Figura):
         Figura.__init__(self, polozaj, barva)
         self.vrsta = 'konj'
         self.vektorji_premika = [(1, 2), (-1, 2), (-2, 1), (-2, -1), (-1, -2), (1, -2), (2, -1), (2, 1)]
-        self.foto = tk.PhotoImage(file=r"slike_figur/konj_{}i.png".format(self.barva))
+        self.foto = tk.PhotoImage(file=r"slike_figur/konj_{}i.gif".format(self.barva))
 
     def izracunaj_dovoljene_premike_iterator(self, slika, igra):
         for x_premika, y_premika in self.vektorji_premika:
@@ -285,7 +285,7 @@ class trdnjava(Figura):
         self.vrsta = 'trdnjava'
         self.premaknjen = False
         self.vektorji_premika = [(0, 1), (0, -1), (1, 0), (-1, 0)]
-        self.foto = tk.PhotoImage(file=r"slike_figur/trdnjava_{}i.png".format(self.barva))
+        self.foto = tk.PhotoImage(file=r"slike_figur/trdnjava_{}i.gif".format(self.barva))
 
     def premakni(self, koncna_lokacija):  ##mogoče da bi naredili preverjanje veljavnosti poteze tukaj???
         x_koncen, y_koncen = koncna_lokacija
@@ -302,7 +302,7 @@ class kralj(Figura):
         self.vrsta = 'kralj'
         self.premaknjen = False
         self.vektorji_premika = [(0, 1), (1, 1), (1, 0), (1, -1), (0, -1), (-1, -1), (-1, 0), (-1, 1)]
-        self.foto = tk.PhotoImage(file=r"slike_figur/kralj_{}i.png".format(self.barva))  ##pa ja nje v figuri!
+        self.foto = tk.PhotoImage(file=r"slike_figur/kralj_{}i.gif".format(self.barva))  ##pa ja nje v figuri!
 
     def izracunaj_dovoljene_premike_iterator(self, slika,
                                              igra):  ##dodamo kot parameter še vse veljavne poteze nasprotnih, za preverjanje saha
@@ -320,13 +320,16 @@ class kralj(Figura):
         self.y = y_koncen
 
 
-class kmet_bel(Figura):
-    def __init__(self, polozaj):
-        Figura.__init__(self, polozaj, 'bel')
+class kmet(Figura):
+    def __init__(self, polozaj, barva):
+        Figura.__init__(self, polozaj, barva)
         self.premaknjen = False
         self.vrsta = 'kmet'
         self.vektorji_premika = [(0, 1), (0, 2), (1, 1), (-1, 1)]
-        self.foto = tk.PhotoImage(file=r"slike_figur/kmet_beli.png")
+        self.koeficient = -1 if self.barva == 'bel' else 1
+        
+        print(self.koeficient)
+        self.foto = tk.PhotoImage(file=r"slike_figur/kmet_{}i.gif".format(self.barva))
 
     def premakni(self, koncna_lokacija):  ##mogoče da bi naredili preverjanje veljavnosti poteze tukaj???
         x_koncen, y_koncen = koncna_lokacija
@@ -336,71 +339,37 @@ class kmet_bel(Figura):
 
     def izracunaj_dovoljene_premike_iterator(self, slika, igra):  ##dodaj en passeu
         for x_premika, y_premika in self.vektorji_premika:
+            y_premika *= self.koeficient
             if v_sahovnici((self.x + x_premika, self.y + y_premika)):
-                if (x_premika, y_premika) == (0, 1) and slika[self.x + 0][self.y + 1] == None:
-                    yield ((self.x + 0, self.y + 1))
-                elif (x_premika, y_premika) == (0, 2) and slika[self.x + 0][self.y + 2] == None and not (
-                self.premaknjen):
-                    yield ((self.x + 0, self.y + 2))
-                elif (x_premika, y_premika) == (1, 1) and slika[self.x + 1][self.y + 1] != None and slika[self.x + 1][
-                            self.y + 1].barva != self.barva:
-                    yield ((self.x + 1, self.y + 1))
-                elif (x_premika, y_premika) == (-1, 1) and slika[self.x - 1][self.y + 1] != None and slika[self.x - 1][
-                            self.y + 1].barva != self.barva:
-                    yield ((self.x - 1, self.y + 1))
-
-
-class kmet_crn(Figura):
-    def __init__(self, polozaj):
-        Figura.__init__(self, polozaj, 'crn')
-        self.premaknjen = False
-        self.vrsta = 'kmet'
-        self.vektorji_premika = [(0, -1), (0, -2), (-1, -1), (1, -1)]
-        self.foto = tk.PhotoImage(file=r"slike_figur/kmet_crni.png")
-
-    def premakni(self, koncna_lokacija):  ##mogoče da bi naredili preverjanje veljavnosti poteze tukaj???
-        x_koncen, y_koncen = koncna_lokacija
-        self.premaknjen = True
-        self.x = x_koncen
-        self.y = y_koncen
-
-    def izracunaj_dovoljene_premike_iterator(self, slika,
-                                             igra):  ##dodaj en passeu, poglej ce povzroci sah, zamenjati kmeta za kraljico, pot do slike
-        for x_premika, y_premika in self.vektorji_premika:
-            if v_sahovnici((self.x + x_premika, self.y + y_premika)):
-                if (x_premika, y_premika) == (0, -1) and slika[self.x + 0][self.y - 1] == None:
-                    yield ((self.x + 0, self.y - 1))
-                if (x_premika, y_premika) == (0, -2) and slika[self.x + 0][self.y - 2] == None and not (
-                self.premaknjen):
-                    yield ((self.x + 0, self.y - 2))
-                if (x_premika, y_premika) == (-1, -1) and slika[self.x - 1][self.y - 1] != None and slika[self.x - 1][
-                            self.y - 1].barva != self.barva:
-                    yield ((self.x - 1, self.y - 1))
-                if (x_premika, y_premika) == (1, -1) and slika[self.x + 1][self.y - 1] != None and slika[self.x + 1][
-                            self.y - 1].barva != self.barva:
-                    yield ((self.x + 1, self.y - 1))
-
+                if x_premika != 0: # pojemo nasprotnikovo figuro
+                    if slika[self.x + x_premika][self.y + y_premika] != None and slika[self.x + x_premika][self.y + y_premika].barva != self.barva:
+                        yield ((self.x + x_premika, self.y + y_premika))
+                else: # skoka naprej
+                    if abs(y_premika) == 1 and slika[self.x][self.y + y_premika] is None: # skok za 1
+                        yield ((self.x, self.y + y_premika))
+                    elif slika[self.x][self.y + y_premika // 2] is None and slika[self.x][self.y + y_premika] is None and not (self.premaknjen): # skok za 2, obe polji morata biti prosti
+                        yield ((self.x, self.y + y_premika))
 
 class sah:
     def __init__(self):
         self.igra = []
         self.na_vrsti = 'bel'
-        self.figure = {'bel': [kmet_bel((0, 1)), kmet_bel((1, 1)), kmet_bel((2, 1)), kmet_bel((3, 1)), kmet_bel((4, 1)),
-                               kmet_bel((5, 1)), kmet_bel((6, 1)),
-                               kmet_bel((7, 1)),
-                               lovec((2, 0), 'bel'), lovec((5, 0), 'bel'),
-                               trdnjava((0, 0), 'bel'), trdnjava((7, 0), 'bel'),
-                               konj((1, 0), 'bel'), konj((6, 0), 'bel'),
-                               kraljica((3, 0), 'bel'),
-                               kralj((4, 0), 'bel')],
-                       'crn': [kmet_crn((0, 6)), kmet_crn((1, 6)), kmet_crn((2, 6)), kmet_crn((3, 6)), kmet_crn((4, 6)),
-                               kmet_crn((5, 6)), kmet_crn((6, 6)),
-                               kmet_crn((7, 6)),
-                               lovec((0, 4), 'crn'), lovec((5, 7), 'crn'),
-                               konj((1, 7), 'crn'), konj((6, 7), 'crn'),
-                               trdnjava((0, 7), 'crn'), trdnjava((7, 7), 'crn'),
-                               kraljica((3, 7), 'crn'),
-                               kralj((4, 7), 'crn')]}
+        self.figure = {'bel': [kmet((0, 6), 'bel'), kmet((1, 6), 'bel'), kmet((2, 6), 'bel'),
+                               kmet((3, 6), 'bel'), kmet((4, 6), 'bel'), kmet((5, 6), 'bel'),
+                               kmet((6, 6), 'bel'), kmet((7, 6), 'bel'),
+                               lovec((2, 7), 'bel'), lovec((5, 7), 'bel'),
+                               trdnjava((0, 7), 'bel'), trdnjava((7, 7), 'bel'),
+                               konj((1, 7), 'bel'), konj((6, 7), 'bel'),
+                               kraljica((3, 7), 'bel'),
+                               kralj((4, 7), 'bel')],
+                       'crn': [kmet((0, 1), 'crn'), kmet((1, 1), 'crn'), kmet((2, 1), 'crn'),
+                               kmet((3, 1), 'crn'), kmet((4, 1), 'crn'), kmet((5, 1), 'crn'),
+                               kmet((6, 1), 'crn'), kmet((7, 1), 'crn'),
+                               lovec((2, 0), 'crn'), lovec((5, 0), 'crn'),
+                               konj((1, 0), 'crn'), konj((6, 0), 'crn'),
+                               trdnjava((0, 0), 'crn'), trdnjava((7, 0), 'crn'),
+                               kraljica((3, 0), 'crn'),
+                               kralj((4, 0), 'crn')]}
         self.slika = figure_v_sliko(self.figure)
 
     def vrni_kralja_na_vrsti(self):
