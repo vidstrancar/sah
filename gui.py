@@ -9,6 +9,16 @@ import tkinter as tk
 import sah2
 
 
+
+
+
+
+
+
+
+
+
+
 class Sahovnica:
 
     def __init__(self, master):
@@ -58,7 +68,7 @@ class Sahovnica:
 
     def narisi_plave(self, plave_tocke):
         '''Z modro pobarva polja, na katere se označena figura lahko premakne..'''
-        for (j, i) in plave_tocke:
+        for (i, j) in plave_tocke:
             barva = "blue"
             x1 = self.odmik + j * self.velikost_polj
             y1 = self.odmik + i * self.velikost_polj
@@ -67,39 +77,37 @@ class Sahovnica:
 
     def klik(self, event):
         '''Prebere prvi in drugi klik.'''
+        i = int((event.y - self.odmik) // self.velikost_polj)
+        j = int((event.x - self.odmik) // self.velikost_polj)
+
         if self.prvi_klik:
             #preberemo prvi klik (označimo figuro ki jo želimo premikat)
-            i = int((event.y - self.odmik) // self.velikost_polj) # vrstica
-            j = int((event.x - self.odmik) // self.velikost_polj) # stolpec
-            if sah2.v_sahovnici((j,i)) and (self.sah.slika[j][i] != None) and (self.sah.na_vrsti == self.sah.slika[j][i].barva):
-                self.dovoljene_poteze = list(self.sah.slika[j][i].dovoljene_poteze_iterator(self.sah.slika, self.sah.igra))
+            if sah2.v_sahovnici((i, j)) and (self.sah.slika[i][j] != None) and (
+                        self.sah.na_vrsti == self.sah.slika[i][j].barva):
+                self.oznacena_figura = self.sah.slika[i][j]
+                self.dovoljene_poteze = list(self.sah.dovoljene_poteze_iterator(self.oznacena_figura)) # seznam oblike [(vr, st), ...]
             else:
                 return
             if len(self.dovoljene_poteze) == 0:
                 self.prvi_klik = True
                 return
-            oznaka_izpis_potez = tk.Label(self.okvir_oznake, textvariable=tk.StringVar(value=str(j)+", "+str(i)+'\t1.klik'))
+            oznaka_izpis_potez = tk.Label(self.okvir_oznake, textvariable=tk.StringVar(value=str(i)+", "+str(j)+'\t1.klik'))
             oznaka_izpis_potez.pack()
             self.prvi_klik = False
-            self.prvi_klikx = j
-            self.prvi_kliky = i
+
             #pobarvamo dovoljena polja
             pobarvane_tocke = []
             for poteza in self.dovoljene_poteze:
-                xz, yz, xk, yk = poteza
-                pobarvane_tocke.append((xk,yk))
+                pobarvane_tocke.append(poteza)
             self.prikaz_figur(plave_tocke = pobarvane_tocke)
             return
 
 		#izračunamo dovoljene končne lokacije označene figure. shranimo v dovoljeni_drugi_kliki -seznam
         #preberemo drugi klik
-
-        k = int((event.y - self.odmik) // self.velikost_polj) # vrstica
-        l = int((event.x - self.odmik) // self.velikost_polj) # stolpec
-        if sah2.v_sahovnici((l,k)) and (self.prvi_klikx, self.prvi_kliky, l, k) in self.dovoljene_poteze:
-            self.sah.naredi_potezo((self.prvi_klikx, self.prvi_kliky, l,k))
+        if sah2.v_sahovnici((i, j)) and (i, j) in self.dovoljene_poteze:
+            self.sah.naredi_potezo(self.oznacena_figura, (i, j))
             self.prvi_klik = True
-            oznaka_izpis_potez = tk.Label(self.okvir_oznake, textvariable=tk.StringVar(value=str(l)+", "+str(k)+'\t2.klik'))
+            oznaka_izpis_potez = tk.Label(self.okvir_oznake, textvariable=tk.StringVar(value=str(i)+", "+str(j)+'\t2.klik'))
             oznaka_izpis_potez.pack()
             self.prikaz_figur()
             return
@@ -120,11 +128,12 @@ class Sahovnica:
         bele = self.sah.figure['bel']
         crne = self.sah.figure['crn']
         for figura in bele + crne:
-            foto = figura.foto
-            x = self.odmik + (figura.x * self.velikost_polj) + self.velikost_polj/2
-            y = self.odmik + (figura.y * self.velikost_polj) + self.velikost_polj/2
-            foto_id = self.platno.create_image(x, y, image=foto, tag=FIGURA)
-            figura.foto_id = foto_id
+            if figura.ziv:
+                foto = figura.foto
+                x = self.odmik + (figura.j * self.velikost_polj) + self.velikost_polj / 2
+                y = self.odmik + (figura.i * self.velikost_polj) + self.velikost_polj/2
+                foto_id = self.platno.create_image(x, y, image=foto, tag=FIGURA)
+                figura.foto_id = foto_id
 
 
 root = tk.Tk()
