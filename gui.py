@@ -91,8 +91,9 @@ class Sahovnica:
             if len(self.dovoljene_poteze) == 0:
                 self.prvi_klik = True
                 return
-            oznaka_izpis_potez = tk.Label(self.okvir_oznake, textvariable=tk.StringVar(value=str(i)+", "+str(j)+'\t1.klik'))
-            oznaka_izpis_potez.pack()
+            self.izpis_potez.set(str(i)+", "+str(j)+'\t1.klik')
+            #oznaka_izpis_potez = tk.Label(self.okvir_oznake, textvariable=tk.StringVar(value=str(i)+", "+str(j)+'\t1.klik'))
+            #oznaka_izpis_potez.pack()
             self.prvi_klik = False
 
             #pobarvamo dovoljena polja
@@ -107,8 +108,9 @@ class Sahovnica:
         if sah2.v_sahovnici((i, j)) and (i, j) in self.dovoljene_poteze:
             self.sah.naredi_potezo(self.oznacena_figura, (i, j))
             self.prvi_klik = True
-            oznaka_izpis_potez = tk.Label(self.okvir_oznake, textvariable=tk.StringVar(value=str(i)+", "+str(j)+'\t2.klik'))
-            oznaka_izpis_potez.pack()
+            self.izpis_potez.set(str(i)+", "+str(j)+'\t2.klik')
+            #oznaka_izpis_potez = tk.Label(self.okvir_oznake, textvariable=tk.StringVar(value=str(i)+", "+str(j)+'\t2.klik'))
+            #oznaka_izpis_potez.pack()
             self.prikaz_figur()
             return
         self.prvi_klik = True

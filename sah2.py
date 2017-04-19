@@ -12,6 +12,7 @@ def v_sahovnici(polozaj):
     return  0 <= x <= 7 and 0 <= y <= 7
 
 
+
 class Figura:
     def __init__(self, polozaj, barva):
         self.ziv = True
@@ -47,9 +48,6 @@ class Figura:
 
     def __str__(self):
         return '{1} {0}, na ({2}, {3})'.format(self.vrsta, self.barva, self.i, self.j)
-
-
-
 
 class kraljica(Figura):
     def __init__(self, polozaj, barva):
@@ -110,8 +108,10 @@ class kralj(Figura):
                                              igra):  ##dodamo kot parameter še vse veljavne poteze nasprotnih, za preverjanje saha
         for i_premika, j_premika in self.vektorji_premika:
             if v_sahovnici((self.i + i_premika, self.j + j_premika)):
-                if slika[self.i + i_premika][self.j + j_premika] is None or slika[self.i + i_premika][self.j + j_premika].barva != self.barva:
+                if slika[self.i + i_premika][self.j + j_premika] is None or \
+                                slika[self.i + i_premika][self.j + j_premika].barva != self.barva:
                     yield ((self.i + i_premika, self.j + j_premika))
+
 
     def premakni(self, koncna_lokacija):
         Figura.premakni(self, koncna_lokacija)
@@ -125,8 +125,6 @@ class kmet(Figura):
         self.vrsta = 'kmet'
         self.vektorji_premika = [(1, 0), (2, 0), (1, 1), (1, -1)]
         self.koeficient = -1 if self.barva == 'bel' else 1
-        
-        print(self.koeficient)
         self.foto = tk.PhotoImage(file=r"slike_figur/kmet_{}i.gif".format(self.barva))
 
     def premakni(self, koncna_lokacija):
@@ -138,13 +136,18 @@ class kmet(Figura):
             i_premika *= self.koeficient
             if v_sahovnici((self.i + i_premika, self.j + j_premika)):
                 if j_premika != 0: # pojemo nasprotnikovo figuro
-                    if slika[self.i + i_premika][self.j + j_premika] is not None and slika[self.i + i_premika][self.j + j_premika].barva != self.barva:
+                    if slika[self.i + i_premika][self.j + j_premika] is not None and \
+                                    slika[self.i + i_premika][self.j + j_premika].barva != self.barva:
                         yield ((self.i + i_premika, self.j + j_premika))
                 else: # skoka naprej
                     if abs(i_premika) == 1 and slika[self.i + i_premika][self.j] is None: # skok za 1
                         yield ((self.i + i_premika, self.j))
-                    elif slika[self.i + i_premika // 2][self.j] is None and slika[self.i + i_premika][self.j] is None and not (self.premaknjen): # skok za 2, obe polji morata biti prosti
+                    elif slika[self.i + i_premika // 2][self.j] is None and slika[self.i + i_premika][self.j] is None and \
+                            not (self.premaknjen): # skok za 2, obe polji morata biti prosti
                         yield ((self.i + i_premika, self.j))
+
+
+
 
 class sah:
     def __init__(self):
@@ -184,8 +187,9 @@ class sah:
     def naredi_potezo(self, figura, poteza):
         i_z, j_z = figura.i, figura.j
         i_k, j_k = poteza
-        pojedena_figura = self.slika[i_k][j_k] # lahko je tudi None
-        self.igra.append(((i_z, j_z), pojedena_figura, figura)) # rekonstrukcija: vprašamo figuro za x, y koordinati, tja postavimo pojedeno_figuro; figuro postavimo na (i_z, j_z)
+        pojedena_figura = self.slika[i_k][j_k]  # lahko je tudi None
+        self.igra.append(((i_z, j_z), pojedena_figura,
+                          figura))  # rekonstrukcija: vprašamo figuro za x, y koordinati, tja postavimo pojedeno_figuro; figuro postavimo na (i_z, j_z)
         if self.slika[i_k][j_k] is not None:
             self.slika[i_k][j_k].pojej()
         figura.premakni((i_k, j_k))
@@ -200,49 +204,61 @@ class sah:
                 yield poteza
 
     def simuliraj_potezo(self, figura, poteza):
-        '''Simulira potezo, in vrne True, če je možna.'''
-        i_stari, j_stari = figura.i, figura.j
-        i_novi, j_novi = poteza
-        kar_je_na_novem_mestu = self.slika[i_novi][j_novi]
-        # sedaj simuliramo potezo
-        self.slika[i_stari][j_stari] = None
-        self.slika[i_novi][j_novi] = figura
+        '''Simulira potezo, in vrne True, če je veljavna.'''
+        stari_i, stari_j = figura.i, figura.j
+        novi_i, novi_j = poteza
+        kar_je_na_novem_mestu = self.slika[novi_i][novi_j]
+        # sedaj simuliramo potezo, spreminjamo le stanje v matriki
+        self.slika[stari_i][stari_j] = None
+        self.slika[novi_i][novi_j] = figura
+        figura.i = novi_i
+        figura.j = novi_j
         # preverimo, ali bo šah po potezi
         bo_sah = self.bo_sah_po_potezi()
         # vrnemo v prvotno stanje
-        self.slika[i_stari][j_stari] = figura
-        self.slika[i_novi][j_novi] = kar_je_na_novem_mestu
-        print(bo_sah)
+        self.slika[stari_i][stari_j] = figura
+        self.slika[novi_i][novi_j] = kar_je_na_novem_mestu
+        figura.i = stari_i
+        figura.j = stari_j
         return not bo_sah
 
     def bo_sah_po_potezi(self):
         '''Vrne True, če bo po potezi šah.'''
         kralj = self.vrni_kralja_na_vrsti()
         # šah zaradi kraljice, trdnjave ali lovca
-        vektorji = [(1, 0), (0, 1), (-1, 0), (0, -1), (1, 1), (1, -1), (-1, -1), (-1, 1)]
-        for vektor in vektorji:
+        vektorji_nevarnih = [(1, 0), (0, 1), (-1, 0), (0, -1), (1, 1), (1, -1), (-1, -1), (-1, 1)]
+        for vektor in vektorji_nevarnih:
             n = 1
             i, j = kralj.i + n * vektor[0], kralj.j + n * vektor[1]
             while v_sahovnici((i, j)):
                 druga_figura = 'trdnjava' if abs(vektor[0] + vektor[1]) == 1 else 'lovec'
                 if self.slika[i][j] is not None:
-                    # print('nevarna figura:', self.slika[i][j])
-                    if self.slika[i][j].barva != kralj.barva and self.slika[i][j].vrsta in ['kraljica', druga_figura]:
+                    if self.slika[i][j].barva != kralj.barva and ((n == 1 and self.slika[i][j].vrsta == 'kralj') or \
+                                    self.slika[i][j].vrsta in ['kraljica', druga_figura]):
                         return True
                     else:
-                        break # druge figure niso nevarne
+                        break  # druge figure niso nevarne
                 n += 1
                 i, j = kralj.i + n * vektor[0], kralj.j + n * vektor[1]
+        # šah zaradi konja
+        vektorji_konja = [(1, 2), (-1, 2), (-2, 1), (-2, -1), (-1, -2), (1, -2), (2, -1), (2, 1)]
+        for i_premika, j_premika in vektorji_konja:
+            if v_sahovnici((kralj.i + i_premika, kralj.j + j_premika)):
+                if self.slika[kralj.i + i_premika][kralj.j + j_premika] is not None and \
+                            self.slika[kralj.i + i_premika][kralj.j + j_premika].barva != kralj.barva and \
+                            self.slika[kralj.i + i_premika][kralj.j + j_premika].vrsta == 'konj':
+                        return True
+        # šah zaradi kmeta
+        vektorji_kmeta = [(1, 1), (1, -1)]
+        koeficient = -1 if kralj.barva == 'bel' else 1
+        for i_premika, j_premika in vektorji_kmeta:
+            i_premika *= koeficient
+            if v_sahovnici((kralj.i + i_premika, kralj.j + j_premika)):
+                if self.slika[kralj.i + i_premika][kralj.j + j_premika] is not None and \
+                            self.slika[kralj.i + i_premika][kralj.j + j_premika].barva != kralj.barva and \
+                            self.slika[kralj.i + i_premika][kralj.j + j_premika].vrsta == 'kmet':
+                        return True
         return False
-                    
-
-
-
-
-
-
-
-
 
 
 
