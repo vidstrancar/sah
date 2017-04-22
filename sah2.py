@@ -111,6 +111,28 @@ class kralj(Figura):
                 if slika[self.i + i_premika][self.j + j_premika] is None or \
                                 slika[self.i + i_premika][self.j + j_premika].barva != self.barva:
                     yield ((self.i + i_premika, self.j + j_premika))
+        # možnost rošade
+        if not self.premaknjen:
+            # leva rošada
+            if not slika[self.i][0].premaknjen:
+                leva = True
+                # preverimo, če so polja vmes prosta
+                for j in [3, 2, 1]:
+                    if slika[self.i][j] is not None:
+                       leva = False
+                       break
+                if leva:
+                    yield('leva_rošada')
+            # desna rošada
+            if not (slika[self.i][7].premaknjen):
+                # print('desnaaaa')
+                desna = True
+                for j in [5, 6]:
+                    if slika[self.i][j] is not None:
+                        desna = False
+                        break
+                if desna:
+                    yield('desna_rošada')
 
 
     def premakni(self, koncna_lokacija):
@@ -184,7 +206,7 @@ class sah:
             slika[figura.i][figura.j] = figura
         return slika
 
-    def naredi_potezo(self, figura, poteza):
+    def premakni_figuro(self, figura, poteza):
         i_z, j_z = figura.i, figura.j
         i_k, j_k = poteza
         pojedena_figura = self.slika[i_k][j_k]  # lahko je tudi None
@@ -195,12 +217,39 @@ class sah:
         figura.premakni((i_k, j_k))
         self.slika[i_z][j_z] = None
         self.slika[i_k][j_k] = figura
+            
+    def naredi_potezo(self, figura, poteza):
+        '''Služi kot filter za rošade in en-passante.'''
+        if poteza == 'leva_rošada':
+            self.premakni_figuro(figura, (figura.i, 2)) # premaknemo kralja
+            self.premakni_figuro(self.slika[figura.i][0], (figura.i, 3)) # premaknemo trdnjavo
+        elif poteza == 'desna_rošada':
+            self.premakni_figuro(figura, (figura.i, 6))
+            self.premakni_figuro(self.slika[figura.i][7], (figura.i, 5))
+        else:
+            self.premakni_figuro(figura, poteza)
+        # spremenimo, kdo je na vrsti
         self.na_vrsti = self.nasprotna_barva()
 
     def dovoljene_poteze_iterator(self, figura):
         '''Vrne seznam dovoljenih potez za posamezno figuro.'''
         for poteza in figura.izracunaj_dovoljene_premike_iterator(self.slika, self.igra):
-            if self.simuliraj_potezo(figura, poteza):
+            if poteza == 'leva_rošada':
+                veljavna_leva = True
+                for j in [4, 3, 2]: # gledamo, ali bo kralj kdajkoli vmes v šahu
+                    if not self.simuliraj_potezo(figura, (figura.i, j)):
+                        veljavna_leva = False
+                if veljavna_leva:
+                    yield poteza
+            elif poteza == 'desna_rošada':
+                veljavna_desna = True
+                for j in [4, 5, 6]:
+                    if not self.simuliraj_potezo(figura, (figura.i, j)):
+                        veljavna_desna = False
+                if veljavna_desna:
+                    yield poteza                                                
+            # za vse druge primere                                     
+            elif self.simuliraj_potezo(figura, poteza):
                 yield poteza
 
     def simuliraj_potezo(self, figura, poteza):

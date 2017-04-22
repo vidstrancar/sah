@@ -9,16 +9,6 @@ import tkinter as tk
 import sah2
 
 
-
-
-
-
-
-
-
-
-
-
 class Sahovnica:
 
     def __init__(self, master):
@@ -68,8 +58,16 @@ class Sahovnica:
 
     def narisi_plave(self, plave_tocke):
         '''Z modro pobarva polja, na katere se označena figura lahko premakne..'''
-        for (i, j) in plave_tocke:
-            barva = "blue"
+        for poteza in plave_tocke:
+            if poteza == 'leva_rošada':
+                i = self.oznacena_figura.i
+                j = 2
+            elif poteza == 'desna_rošada':
+                i = self.oznacena_figura.i
+                j = 6
+            else:
+                i, j = poteza
+                barva = "blue"
             x1 = self.odmik + j * self.velikost_polj
             y1 = self.odmik + i * self.velikost_polj
             self.platno.create_rectangle(x1, y1, x1 + self.velikost_polj, y1 + self.velikost_polj, fill=barva, tag=PLAVI)
@@ -77,8 +75,8 @@ class Sahovnica:
 
     def klik(self, event):
         '''Prebere prvi in drugi klik.'''
-        i = int((event.y - self.odmik) // self.velikost_polj)
-        j = int((event.x - self.odmik) // self.velikost_polj)
+        i = int((event.y - self.odmik) // self.velikost_polj) # vrstica
+        j = int((event.x - self.odmik) // self.velikost_polj) # stolpec
 
         if self.prvi_klik:
             #preberemo prvi klik (označimo figuro ki jo želimo premikat)
@@ -105,8 +103,15 @@ class Sahovnica:
 
 		#izračunamo dovoljene končne lokacije označene figure. shranimo v dovoljeni_drugi_kliki -seznam
         #preberemo drugi klik
-        if sah2.v_sahovnici((i, j)) and (i, j) in self.dovoljene_poteze:
-            self.sah.naredi_potezo(self.oznacena_figura, (i, j))
+        poteza = (i, j)
+        print(self.dovoljene_poteze)
+        if self.oznacena_figura.vrsta == 'kralj' and abs(self.oznacena_figura.j - j) == 2:
+            if j == 2:
+                poteza = 'leva_rošada'
+            elif j == 6:
+                poteza = 'desna_rošada'
+        if sah2.v_sahovnici((i, j)) and poteza in self.dovoljene_poteze:
+            self.sah.naredi_potezo(self.oznacena_figura, poteza)
             self.prvi_klik = True
             self.izpis_potez.set(str(i)+", "+str(j)+'\t2.klik')
             #oznaka_izpis_potez = tk.Label(self.okvir_oznake, textvariable=tk.StringVar(value=str(i)+", "+str(j)+'\t2.klik'))
