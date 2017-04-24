@@ -171,7 +171,7 @@ class kmet(Figura):
 
 
 
-class sah:
+class Sah():
     def __init__(self):
         self.igra = []
         self.na_vrsti = 'bel'

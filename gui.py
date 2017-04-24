@@ -6,23 +6,48 @@ FIGURA="figura"
 PLAVI="plavi"
 
 import tkinter as tk
+import argparse        # za argumente iz ukazne vrstice
+import logging         # za odpravljanje napak
+
 import sah2
+import clovek
 
 
-class Sahovnica:
+
+class Sahovnica():
+    # nastavitve velikosti
+    VELIKOST_POLJA = 100
+    ODMIK = 30
 
     def __init__(self, master):
-        # nastavitve velikosti
-        self.velikost_polj = 100
-        self.odmik = 30
+        self.igralec_beli = None # (nastavimo ob začetku igre)
+        self.igralec_crni = None
+        self.sah = None
 
-        self.platno = tk.Canvas(master, width=self.velikost_polj * 10, height=self.velikost_polj * 10)
+
+
+        # Ob zaprtju okna
+        master.protocol("WM_DELETE_WINDOW", lambda: self.zapri_okno(master))
+
+        # Glavni menu
+        menu = tk.Menu(master)
+        master.config(menu=menu) # Dodamo glavni menu v okno
+
+        # Podmenu za izbiro igre
+        menu_igra = tk.Menu(menu)
+        menu.add_cascade(label="Igra", menu=menu_igra)
+        menu_igra.add_command(label="Nova igra",
+                              command=lambda: self.zacni_igro())
+
+        # Igralna površina
+        self.platno = tk.Canvas(master, width=Sahovnica.VELIKOST_POLJA * 10, height=Sahovnica.VELIKOST_POLJA * 10)
         self.platno.pack()
 
+        # Dovoljeni kliki
         self.prvi_klik = True
         self.dovoljeni_drugi_kliki = []
         self.prvi_klikx = self.prvi_kliky = 0
-        self.sah = sah2.sah()
+
         self.oznacena_figura = None
 
         # narišemo šahovnico
@@ -31,29 +56,75 @@ class Sahovnica:
         # registriramo se za klike z miško
         self.platno.bind('<Button-1>', self.klik)
 
-        # naredimo oznako za izpisovanje
+        # Oznaka za izpisovanje
         self.okvir_oznake = tk.LabelFrame(self.platno)
         self.okvir_oznake.pack()
         self.izpis_potez = tk.StringVar(value='klikni nekam')
         oznaka_izpis_potez = tk.Label(self.okvir_oznake, textvariable=self.izpis_potez)
         oznaka_izpis_potez.pack()
-        x, y = self.odmik + 8 * self.velikost_polj / 2, self.odmik / 2
+        x, y = Sahovnica.ODMIK + 8 * Sahovnica.VELIKOST_POLJA / 2, Sahovnica.ODMIK / 2
         self.platno.create_window(x, y, window=self.okvir_oznake, width = 140)
         # self.platno.create_text(600, 20, text=self.izpis_potez.get()) ZAKAJ SE TO NE SPREMINJA?
+
+
+
+
+        # Začnemo igro
+
         self.zacni_igro()
+
+    def zacni_igro(self):
+        '''Prične igro.'''
+        self.prikaz_figur()
+        # nastavi odštevalnik ure
+
+    def zacni_igro(self):
+        '''Nastavi stanje na začetek igre. Za igralca uporabi dana igralca.'''
+        # Ustavimo vse igralce, ki morda razmišljajo.
+        self.prekini_igralce()
+        # Nastavimo igralca
+        self.igralec_beli = clovek.Clovek(self)
+        self.igralec_crni = clovek.Clovek(self)
+        self.platno.delete(tk.ALL)
+        # Začnemo novo igro
+        self.sah = sah2.Sah()
+        self.narisi_sahovnico()
+        self.izpis_potez.set("Na potezi je beli.")
+        self.igralec_beli.igraj()
+
+    def koncaj_igro(self, zmagovalec):
+        '''Nastavi stanje igre na konec igre.'''
+        if zmagovalec == IGRALEC_BELI:
+            self.izpis_potez.set('Zmagal je beli.')
+        elif zmagovalec == IGRALEC_CRNI:
+            self.izpis_potez.set('Zmagal je črni.')
+        else:
+            self.izpis_potez.set('Neodločeno.')
+
+
+    def prekini_igralce(self):
+        '''Sporoči igralcem, da morajo nehati razmišljati.'''
+        logging.debug("prekinjam igralce")
+        if self.igralec_beli: self.igralec_beli.prekini()
+        if self.igralec_crni: self.igralec_crni.prekini()
+
+    def zapri_okno(self, master):
+        '''Ustavi vlakna, ki razmišljajo in zapre okno.'''
+        self.prekini_igralce()
+        master.destroy()
 
     def narisi_sahovnico(self):
         '''Nariše šahovnico 8d X 8d. Desno spodaj je belo polje.'''
-        x1, y1 = self.odmik, self.odmik  # določimo odmik
+        x1, y1 = Sahovnica.ODMIK, Sahovnica.ODMIK  # določimo odmik
         matrika_id = [[None for i in range(8)] for j in range(8)]
         for i in range(8):  # vrstice
             for j in range(8):  # stolpci
                 barva = "white" if (i + j) % 2 == 0 else "gray"
-                id_polja = self.platno.create_rectangle(x1, y1, x1 + self.velikost_polj, y1 + self.velikost_polj,
+                id_polja = self.platno.create_rectangle(x1, y1, x1 + Sahovnica.VELIKOST_POLJA, y1 + Sahovnica.VELIKOST_POLJA,
                                                         fill=barva, tag=POLJE)
                 matrika_id[i][j] = id_polja
-                x1 += self.velikost_polj  # naslednji kvadratek v vrsti
-            x1, y1 = self.odmik, self.odmik + self.velikost_polj * (i + 1)  # premaknemo se eno vrstico navzdol
+                x1 += Sahovnica.VELIKOST_POLJA  # naslednji kvadratek v vrsti
+            x1, y1 = Sahovnica.ODMIK, Sahovnica.ODMIK + Sahovnica.VELIKOST_POLJA * (i + 1)  # premaknemo se eno vrstico navzdol
         return matrika_id
 
     def narisi_plave(self, plave_tocke):
@@ -68,15 +139,15 @@ class Sahovnica:
             else:
                 i, j = poteza
                 barva = "blue"
-            x1 = self.odmik + j * self.velikost_polj
-            y1 = self.odmik + i * self.velikost_polj
-            self.platno.create_rectangle(x1, y1, x1 + self.velikost_polj, y1 + self.velikost_polj, fill=barva, tag=PLAVI)
+            x1 = Sahovnica.ODMIK + j * Sahovnica.VELIKOST_POLJA
+            y1 = Sahovnica.ODMIK + i * Sahovnica.VELIKOST_POLJA
+            self.platno.create_rectangle(x1, y1, x1 + Sahovnica.VELIKOST_POLJA, y1 + Sahovnica.VELIKOST_POLJA, fill=barva, tag=PLAVI)
 
 
     def klik(self, event):
         '''Prebere prvi in drugi klik.'''
-        i = int((event.y - self.odmik) // self.velikost_polj) # vrstica
-        j = int((event.x - self.odmik) // self.velikost_polj) # stolpec
+        i = int((event.y - Sahovnica.ODMIK) // Sahovnica.VELIKOST_POLJA) # vrstica
+        j = int((event.x - Sahovnica.ODMIK) // Sahovnica.VELIKOST_POLJA) # stolpec
 
         if self.prvi_klik:
             #preberemo prvi klik (označimo figuro ki jo želimo premikat)
@@ -121,11 +192,6 @@ class Sahovnica:
         self.prvi_klik = True
         self.prikaz_figur()
 
-    def zacni_igro(self):
-        '''Prične igro.'''
-        self.prikaz_figur()
-        # nastavi odštevalnik ure
-
 
     def prikaz_figur(self, plave_tocke = []):
         '''Pobriše vse figure in nariše nove.'''
@@ -137,8 +203,8 @@ class Sahovnica:
         for figura in bele + crne:
             if figura.ziv:
                 foto = figura.foto
-                x = self.odmik + (figura.j * self.velikost_polj) + self.velikost_polj / 2
-                y = self.odmik + (figura.i * self.velikost_polj) + self.velikost_polj/2
+                x = Sahovnica.ODMIK + (figura.j * Sahovnica.VELIKOST_POLJA) + Sahovnica.VELIKOST_POLJA / 2
+                y = Sahovnica.ODMIK + (figura.i * Sahovnica.VELIKOST_POLJA) + Sahovnica.VELIKOST_POLJA/2
                 foto_id = self.platno.create_image(x, y, image=foto, tag=FIGURA)
                 figura.foto_id = foto_id
 
