@@ -10,9 +10,9 @@ import argparse        # za argumente iz ukazne vrstice
 import logging         # za odpravljanje napak
 
 import sah2
-import clovek
-import racunalnik
-import minimax
+from clovek import *
+from racunalnik import *
+from minimax import *
 
 MINIMAX_GLOBINA = 2
 
@@ -38,9 +38,9 @@ class Sahovnica():
         menu_igra = tk.Menu(menu)
         menu.add_cascade(label="Igra", menu=menu_igra)
         menu_igra.add_command(label="Človek - Človek",
-                              command=lambda: self.zacni_igro(clovek.Clovek(self), clovek.Clovek(self)))
+                              command=lambda: self.zacni_igro(Clovek(self), Clovek(self)))
         menu_igra.add_command(label="Človek - Računalnik",
-                              command=lambda: self.zacni_igro(clovek.Clovek(self), racunalnik.Racunalnik(self, minimax.Minimax(globina))))
+                              command=lambda: self.zacni_igro(Clovek(self), racunalnik.Racunalnik(self, Minimax(globina))))
 
         # Igralna površina
         self.platno = tk.Canvas(master, width=Sahovnica.VELIKOST_POLJA * 10, height=Sahovnica.VELIKOST_POLJA * 10)
@@ -70,12 +70,12 @@ class Sahovnica():
         tk.Label(master, textvariable=self.izpis_potez).grid(row=0, column=0)
 
 
-        # Začnemo igro v načinu človek proti človeku
-        self.zacni_igro(clovek.Clovek(self), clovek.Clovek(self))#racunalnik.Racunalnik(self, minimax.Minimax(globina)))
+        # Začnemo igro v načinu človek proti računalniku
+        self.zacni_igro(Clovek(self), Racunalnik(self, Minimax(globina)))
 
     def vrni_potezo(self, event):
         self.izpis_potez.set('Vračamo potezo.')
-        # if isinstance(self.igralec_beli, clovek.Clovek) and isinstance(self.igralec_crni, clovek.Clovek):
+        # if isinstance(self.igralec_beli, Clovek) and isinstance(self.igralec_crni, Clovek):
         self.sah.vrni_potezo()
         self.prikaz_figur()
 
@@ -130,7 +130,7 @@ class Sahovnica():
                 j = 6
             else:
                 i, j = poteza
-                barva = "blue"
+            barva = "blue"
             x1 = Sahovnica.ODMIK + j * Sahovnica.VELIKOST_POLJA
             y1 = Sahovnica.ODMIK + i * Sahovnica.VELIKOST_POLJA
             self.platno.create_rectangle(x1, y1, x1 + Sahovnica.VELIKOST_POLJA, y1 + Sahovnica.VELIKOST_POLJA, fill=barva, tag=PLAVI)

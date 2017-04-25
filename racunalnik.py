@@ -24,7 +24,7 @@ class Racunalnik():
 
         # Naredimo vlakno, ki mu podamo kopijo ogre, da ne zmedemo GUI-ja
         self.mislec = threading.Thread(
-            target=lambda: self.algoritem.izracunaj_potezo(self.gui.igra.kopija()))
+            target=lambda: self.algoritem.izracunaj_potezo(self.sah.kopija()))
 
         # Poženemo vlakno
         self.mislec.start()
@@ -36,7 +36,9 @@ class Racunalnik():
         '''Vsakih 100ms preveri, ali je algoritem že izračunal potezo.'''
         if self.algoritem.poteza is not None:
             # Algoritem je že našel potezo; povleci jo, če ni bilo prekinitve
-            self.gui.povleci_potezo(self.algoritem.poteza)
+            figura, p = self.algoritem.poteza
+            self.sah.naredi_potezo(figura, p)
+            self.gui.prikaz_figur()
             # Vzporedno vlakno ni več aktivno, zato ga 'pozabimo'
             self.mislec = None
         else:

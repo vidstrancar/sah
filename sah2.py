@@ -55,6 +55,7 @@ class kraljica(Figura):
         self.vrsta = 'kraljica'
         self.vektorji_premika = [(-1, 1), (1, 1), (-1, -1), (1, -1), (0, 1), (0, -1), (1, 0), (-1, 0)]
         self.foto = tk.PhotoImage(file=r"slike_figur/kraljica_{}i.gif".format(self.barva))
+        self.vrednost = 9
 
 
 class lovec(Figura):
@@ -63,6 +64,7 @@ class lovec(Figura):
         self.vrsta = 'lovec'
         self.vektorji_premika = [(-1, 1), (1, 1), (-1, -1), (1, -1)]
         self.foto = tk.PhotoImage(file=r"slike_figur/lovec_{}i.gif".format(self.barva))
+        self.vrednost = 3
 
 
 class konj(Figura):
@@ -71,6 +73,7 @@ class konj(Figura):
         self.vrsta = 'konj'
         self.vektorji_premika = [(1, 2), (-1, 2), (-2, 1), (-2, -1), (-1, -2), (1, -2), (2, -1), (2, 1)]
         self.foto = tk.PhotoImage(file=r"slike_figur/konj_{}i.gif".format(self.barva))
+        self.vrednost = 3
 
     def izracunaj_dovoljene_premike_iterator(self, slika, igra):
         for i_premika, j_premika in self.vektorji_premika:
@@ -88,6 +91,7 @@ class trdnjava(Figura):
         self.premaknjen = False
         self.vektorji_premika = [(0, 1), (0, -1), (1, 0), (-1, 0)]
         self.foto = tk.PhotoImage(file=r"slike_figur/trdnjava_{}i.gif".format(self.barva))
+        self.vrednost = 5
 
     def premakni(self, koncna_lokacija):
         Figura.premakni(self, koncna_lokacija)
@@ -103,6 +107,7 @@ class kralj(Figura):
         self.premaknjen = False
         self.vektorji_premika = [(0, 1), (1, 1), (1, 0), (1, -1), (0, -1), (-1, -1), (-1, 0), (-1, 1)]
         self.foto = tk.PhotoImage(file=r"slike_figur/kralj_{}i.gif".format(self.barva))  ##pa ja nje v figuri!
+        self.vrednost = 1000000
 
     def izracunaj_dovoljene_premike_iterator(self, slika,
                                              igra):  ##dodamo kot parameter še vse veljavne poteze nasprotnih, za preverjanje saha
@@ -143,15 +148,11 @@ class kralj(Figura):
 class kmet(Figura):
     def __init__(self, polozaj, barva):
         Figura.__init__(self, polozaj, barva)
-        self.premaknjen = False
         self.vrsta = 'kmet'
         self.vektorji_premika = [(1, 0), (2, 0), (1, 1), (1, -1)]
         self.koeficient = -1 if self.barva == 'bel' else 1
         self.foto = tk.PhotoImage(file=r"slike_figur/kmet_{}i.gif".format(self.barva))
-
-    def premakni(self, koncna_lokacija):
-        Figura.premakni(self, koncna_lokacija)
-        self.premaknjen = True
+        self.vrednost = 1
 
     def izracunaj_dovoljene_premike_iterator(self, slika, igra):  ##dodaj en passeu
         for i_premika, j_premika in self.vektorji_premika:
@@ -162,10 +163,11 @@ class kmet(Figura):
                                     slika[self.i + i_premika][self.j + j_premika].barva != self.barva:
                         yield ((self.i + i_premika, self.j + j_premika))
                 else: # skoka naprej
+                    zacetna_pozicija = 1 if self.barva == 'crn' else 6
                     if abs(i_premika) == 1 and slika[self.i + i_premika][self.j] is None: # skok za 1
                         yield ((self.i + i_premika, self.j))
                     elif slika[self.i + i_premika // 2][self.j] is None and slika[self.i + i_premika][self.j] is None and \
-                            not (self.premaknjen): # skok za 2, obe polji morata biti prosti
+                            self.i == zacetna_pozicija: # skok za 2, obe polji morata biti prosti
                         yield ((self.i + i_premika, self.j))
 
 
@@ -196,6 +198,7 @@ class Sah():
 
 
     def kopija(self):
+        '''Vrne kopijo trenutnega stanja igre. Uporabno za minimax.'''
         sah = Sah()
         sah.figure = self.figure.deep_copy()
         sah.na_vrsti = self.na_vrsti
@@ -211,6 +214,7 @@ class Sah():
             if len(list(self.dovoljene_poteze_iterator(figura))) > 0:
                 return
         self.zmagovalec = self.nasprotna_barva()
+        return self.zmagovalec
 
 
     def vrni_kralja_na_vrsti(self):
@@ -228,7 +232,8 @@ class Sah():
         slika = [[None] * 8 for i in range(8)]
         vse_figure = self.figure['bel'] + self.figure['crn']
         for figura in vse_figure:
-            slika[figura.i][figura.j] = figura
+            if figura.ziv:
+                slika[figura.i][figura.j] = figura
         return slika
 
     def vrni_potezo(self):
@@ -237,14 +242,13 @@ class Sah():
             poteza, pojedena_figura, figura = self.igra.pop()
             i, j = figura.i, figura.j # na teh koordinatah je bila pojedena figura
             self.premakni_figuro(figura, poteza, False)
-            if figura.vrsta == 'kmet' and abs(figura.i - i) == 2: # kmetu, ki ga vrnemo za 2 polji nazaj,
-                figura.premaknjen = False                         # povrnemo možnost skoka za 2 polji
             if pojedena_figura is not None:
                 self.premakni_figuro(pojedena_figura, (i, j), False)
                 pojedena_figura.ziv = True
             self.na_vrsti = self.nasprotna_barva()
 
     def premakni_figuro(self, figura, poteza, belezi_zgo=True):
+        '''Premakne figuro, spremeni njene atribute. Zabeleži v zgodovino igre.'''
         i_z, j_z = figura.i, figura.j
         i_k, j_k = poteza
         pojedena_figura = self.slika[i_k][j_k]  # lahko je tudi None
@@ -255,10 +259,20 @@ class Sah():
         figura.premakni((i_k, j_k))
         self.slika[i_z][j_z] = None
         self.slika[i_k][j_k] = figura
-            
+
+
     def naredi_potezo(self, figura, poteza):
         '''Služi kot filter za rošade in en-passante.'''
         if poteza in self.dovoljene_poteze_iterator(figura):
+            # promocija kmeta
+            # zadnja_vrsta = 0 if figura.barva == 'bel' else 7
+            # if figura.vrsta == 'kmet' and poteza[0] == zadnja_vrsta:
+            #     nova_kraljica = kraljica((figura.i, figura.j), figura.barva)
+            #     figura.ziv = False
+            #     self.figure[figura.barva].append(nova_kraljica)
+            #     self.figure_v_sliko()
+            #     self.premakni_figuro(nova_kraljica, poteza)
+            # rošadi
             if poteza == 'leva_rošada':
                 self.premakni_figuro(figura, (figura.i, 2)) # premaknemo kralja
                 self.premakni_figuro(self.slika[figura.i][0], (figura.i, 3)) # premaknemo trdnjavo
