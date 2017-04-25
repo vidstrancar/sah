@@ -173,8 +173,9 @@ class kmet(Figura):
 
 class Sah():
     def __init__(self):
-        self.igra = []
+        self.igra = [] # beleži zgodovino igre
         self.na_vrsti = 'bel'
+        self.zmagovalec = None
         self.figure = {'bel': [kmet((6, i), 'bel') for i in range(8)] +
                               [lovec((7, 2), 'bel'), lovec((7, 5), 'bel'),
                                trdnjava((7, 0), 'bel'), trdnjava((7, 7), 'bel'),
@@ -189,29 +190,66 @@ class Sah():
                                kraljica((0, 3), 'crn'),
                                kralj((0, 4), 'crn')]}
 
+
         self.slika = self.figure_v_sliko()
 
+
+
+    def kopija(self):
+        sah = Sah()
+        sah.figure = self.figure.deep_copy()
+        sah.na_vrsti = self.na_vrsti
+        sah.igra = self.igra.deep_copy
+        self.slika = self.figure_v_sliko()
+        return sah
+
+
+
+    def stanje_igre(self):
+        '''Če je igre konec, nastavi zmagovalca.'''
+        for figura in self.figure[self.na_vrsti]:
+            if len(list(self.dovoljene_poteze_iterator(figura))) > 0:
+                return
+        self.zmagovalec = self.nasprotna_barva()
+
+
     def vrni_kralja_na_vrsti(self):
+        '''Vrne figuro nasprotnega kralja.'''
         for figura in self.figure[self.na_vrsti]:
             if figura.vrsta == 'kralj':
                 return figura
 
     def nasprotna_barva(self):
+        '''Vrne barvo nasprotnega igralca.'''
         return 'crn' if self.na_vrsti == 'bel' else 'bel'
 
-    def figure_v_sliko(self):  # x in y sta bila zamenjana
+    def figure_v_sliko(self):
+        '''Pretvori iz slovarjev figur v matriko figur in jo vrne.'''
         slika = [[None] * 8 for i in range(8)]
         vse_figure = self.figure['bel'] + self.figure['crn']
         for figura in vse_figure:
             slika[figura.i][figura.j] = figura
         return slika
 
-    def premakni_figuro(self, figura, poteza):
+    def vrni_potezo(self):
+        '''Povrne situacijo pred eno potezo.'''
+        if len(self.igra) != 0:
+            poteza, pojedena_figura, figura = self.igra.pop()
+            i, j = figura.i, figura.j # na teh koordinatah je bila pojedena figura
+            self.premakni_figuro(figura, poteza, False)
+            if figura.vrsta == 'kmet' and abs(figura.i - i) == 2: # kmetu, ki ga vrnemo za 2 polji nazaj,
+                figura.premaknjen = False                         # povrnemo možnost skoka za 2 polji
+            if pojedena_figura is not None:
+                self.premakni_figuro(pojedena_figura, (i, j), False)
+                pojedena_figura.ziv = True
+            self.na_vrsti = self.nasprotna_barva()
+
+    def premakni_figuro(self, figura, poteza, belezi_zgo=True):
         i_z, j_z = figura.i, figura.j
         i_k, j_k = poteza
         pojedena_figura = self.slika[i_k][j_k]  # lahko je tudi None
-        self.igra.append(((i_z, j_z), pojedena_figura,
-                          figura))  # rekonstrukcija: vprašamo figuro za x, y koordinati, tja postavimo pojedeno_figuro; figuro postavimo na (i_z, j_z)
+        if belezi_zgo:
+            self.igra.append(((i_z, j_z), pojedena_figura, figura))
         if self.slika[i_k][j_k] is not None:
             self.slika[i_k][j_k].pojej()
         figura.premakni((i_k, j_k))
@@ -220,16 +258,19 @@ class Sah():
             
     def naredi_potezo(self, figura, poteza):
         '''Služi kot filter za rošade in en-passante.'''
-        if poteza == 'leva_rošada':
-            self.premakni_figuro(figura, (figura.i, 2)) # premaknemo kralja
-            self.premakni_figuro(self.slika[figura.i][0], (figura.i, 3)) # premaknemo trdnjavo
-        elif poteza == 'desna_rošada':
-            self.premakni_figuro(figura, (figura.i, 6))
-            self.premakni_figuro(self.slika[figura.i][7], (figura.i, 5))
-        else:
-            self.premakni_figuro(figura, poteza)
-        # spremenimo, kdo je na vrsti
-        self.na_vrsti = self.nasprotna_barva()
+        if poteza in self.dovoljene_poteze_iterator(figura):
+            if poteza == 'leva_rošada':
+                self.premakni_figuro(figura, (figura.i, 2)) # premaknemo kralja
+                self.premakni_figuro(self.slika[figura.i][0], (figura.i, 3)) # premaknemo trdnjavo
+            elif poteza == 'desna_rošada':
+                self.premakni_figuro(figura, (figura.i, 6))
+                self.premakni_figuro(self.slika[figura.i][7], (figura.i, 5))
+            else:
+                self.premakni_figuro(figura, poteza)
+            # spremenimo, kdo je na vrsti
+            self.na_vrsti = self.nasprotna_barva()
+            return True
+        return False
 
     def dovoljene_poteze_iterator(self, figura):
         '''Vrne seznam dovoljenih potez za posamezno figuro.'''

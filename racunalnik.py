@@ -1,10 +1,12 @@
 import threading # za vzporedno izvajanje
 
 from minimax import *
+from sah2 import *
 
 class Racunalnik():
     def __init__(self, gui, algoritem):
         self.gui = gui
+        self.sah = self.gui.sah
         self.algoritem = algoritem # Algoritem, ki računa potezo
         self.mislec = None
 

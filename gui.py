@@ -44,8 +44,8 @@ class Sahovnica():
 
         # Igralna površina
         self.platno = tk.Canvas(master, width=Sahovnica.VELIKOST_POLJA * 10, height=Sahovnica.VELIKOST_POLJA * 10)
-        # self.platno.grid(row=0, column=0)
-        self.platno.pack()
+        self.platno.grid(row=1, column=0)
+        # self.platno.pack()
 
         # Dovoljeni kliki
         self.prvi_klik = True
@@ -57,26 +57,27 @@ class Sahovnica():
         # narišemo šahovnico
         self.narisi_sahovnico()
 
+
         # registriramo se za klike z miško
+
         self.platno.bind('<Button-1>', self.klik)
+        self.platno.bind('<Control-z>', self.vrni_potezo)
+        self.platno.focus_force()
 
 
         # Oznaka za izpisovanje
-        # self.izpis_potez = tk.StringVar(master, value="Dobrodošli v 3 x 3!")
-        # tk.Label(master, textvariable=self.izpis_potez).grid(row=0, column=0)
-        self.okvir_oznake = tk.LabelFrame(self.platno)
-        self.okvir_oznake.pack()
-        self.izpis_potez = tk.StringVar(value='klikni nekam')
-        oznaka_izpis_potez = tk.Label(self.okvir_oznake, textvariable=self.izpis_potez)
-        oznaka_izpis_potez.pack()
-        x, y = Sahovnica.ODMIK + 8 * Sahovnica.VELIKOST_POLJA / 2, Sahovnica.ODMIK / 2
-        self.platno.create_window(x, y, window=self.okvir_oznake, width = 140)
-        # self.platno.create_text(600, 20, text=self.izpis_potez.get()) ZAKAJ SE TO NE SPREMINJA?
+        self.izpis_potez = tk.StringVar(master, value="Dobrodošli šah!")
+        tk.Label(master, textvariable=self.izpis_potez).grid(row=0, column=0)
 
 
-        # Začnemo igro v načinu človek proti računalniku
-        self.zacni_igro(clovek.Clovek(self), racunalnik.Racunalnik(self, minimax.Minimax(globina)))
+        # Začnemo igro v načinu človek proti človeku
+        self.zacni_igro(clovek.Clovek(self), clovek.Clovek(self))#racunalnik.Racunalnik(self, minimax.Minimax(globina)))
 
+    def vrni_potezo(self, event):
+        self.izpis_potez.set('Vračamo potezo.')
+        # if isinstance(self.igralec_beli, clovek.Clovek) and isinstance(self.igralec_crni, clovek.Clovek):
+        self.sah.vrni_potezo()
+        self.prikaz_figur()
 
     def zacni_igro(self, beli, crni):
         '''Nastavi stanje na začetek igre. Za igralca uporabi dana igralca.'''
@@ -91,15 +92,6 @@ class Sahovnica():
         self.izpis_potez.set("Na potezi je beli.")
         self.igralec_beli.igraj()
         # nastavi odštevalnik ure
-
-    def koncaj_igro(self, zmagovalec):
-        '''Nastavi stanje igre na konec igre.'''
-        if zmagovalec == IGRALEC_BELI:
-            self.izpis_potez.set('Zmagal je beli.')
-        elif zmagovalec == IGRALEC_CRNI:
-            self.izpis_potez.set('Zmagal je črni.')
-        else:
-            self.izpis_potez.set('Neodločeno.')
 
 
     def prekini_igralce(self):
@@ -144,78 +136,59 @@ class Sahovnica():
             self.platno.create_rectangle(x1, y1, x1 + Sahovnica.VELIKOST_POLJA, y1 + Sahovnica.VELIKOST_POLJA, fill=barva, tag=PLAVI)
 
     def klik(self, event):
-        '''Ogdovori na klik uporabnika.'''
-        # Tistemu, ki je na potezi, sporočimo, da je uporabnik kliknil na ploščo.
-        # Podamo mu potezo.
-        i = int((event.y - Sahovnica.ODMIK) // Sahovnica.VELIKOST_POLJA) # vrstica
-        j = int((event.x - Sahovnica.ODMIK) // Sahovnica.VELIKOST_POLJA) # stolpec
-        poteza = (i, j)
-        if sah2.v_sahovnici(poteza):
-            if self.sah.na_vrsti == 'bel':
-                self.igralec_beli.klik(poteza)
-            elif self.sah.na_vrsti == 'crn':
-                self.igralec_crni.klik(poteza)
+        '''Ogdovori na klik uporabnika. Sporočimo tistemu, ki je na potezi'''
+        if self.sah.zmagovalec is None:
+            i = int((event.y - Sahovnica.ODMIK) // Sahovnica.VELIKOST_POLJA) # vrstica
+            j = int((event.x - Sahovnica.ODMIK) // Sahovnica.VELIKOST_POLJA) # stolpec
+            poteza = (i, j)
+
+            # self.platno.itemconfig(self.text, text="klik.")
+            if sah2.v_sahovnici(poteza):
+                if self.sah.na_vrsti == 'bel':
+                    self.igralec_beli.klik(poteza)
+                elif self.sah.na_vrsti == 'crn':
+                    self.igralec_crni.klik(poteza)
+                else:
+                    # Nihče ni na potezi, zato ne naredimo nič.
+                    pass
             else:
-                # Nihče ni na potezi, zato ne naredimo nič.
-                pass
-        else:
-            logging.debug("klik izven ploše")
+                logging.debug("klik izven ploše")
 
-
-
-
-    def povleci_potezo(self, poteza):
+    def razberi_potezo(self, poteza):
         '''Prebere prvi in drugi klik.'''
         i, j = poteza
-        # sporočimo logiki, naj povleče potezo, to storimo v obliki:
-        # self.sah.naredi_potezo(self.oznacena_figura, poteza); če nam le-ta vrne None, je poteza neveljavna
-        # pomagamo si z označeno figuro
-
-
-        if self.prvi_klik:
-            #preberemo prvi klik (označimo figuro ki jo želimo premikat)
-            if sah2.v_sahovnici((i, j)) and (self.sah.slika[i][j] != None) and (
-                        self.sah.na_vrsti == self.sah.slika[i][j].barva):
+        if self.oznacena_figura is None: # označimo figuro
+            if (self.sah.slika[i][j] != None) and (self.sah.na_vrsti == self.sah.slika[i][j].barva):
                 self.oznacena_figura = self.sah.slika[i][j]
-                self.dovoljene_poteze = list(self.sah.dovoljene_poteze_iterator(self.oznacena_figura)) # seznam oblike [(vr, st), ...]
+                self.dovoljene_poteze = list(self.sah.dovoljene_poteze_iterator(self.oznacena_figura))
+                self.prikaz_figur(plave_tocke = self.dovoljene_poteze) # pobarvamo dovoljena polja
             else:
-                return
-            if len(self.dovoljene_poteze) == 0:
-                self.prvi_klik = True
-                return
-            self.izpis_potez.set(str(i)+", "+str(j)+'\t1.klik')
-            #oznaka_izpis_potez = tk.Label(self.okvir_oznake, textvariable=tk.StringVar(value=str(i)+", "+str(j)+'\t1.klik'))
-            #oznaka_izpis_potez.pack()
-            self.prvi_klik = False
+                self.oznacen_figura = None
+            self.izpis_potez.set('označimo {}'.format(self.oznacena_figura))
+        else:
+            self.premakni_figuro(self.oznacena_figura, poteza)
 
-            #pobarvamo dovoljena polja
-            pobarvane_tocke = []
-            for poteza in self.dovoljene_poteze:
-                pobarvane_tocke.append(poteza)
-            self.prikaz_figur(plave_tocke = pobarvane_tocke)
-            return
-
-        #izračunamo dovoljene končne lokacije označene figure. shranimo v dovoljeni_drugi_kliki -seznam
-        #preberemo drugi klik
-        poteza = (i, j)
+    def premakni_figuro(self, figura, poteza):
+        '''Premakne figuro, če je poteza veljavna.'''
+        i, j = poteza
         if self.oznacena_figura.vrsta == 'kralj' and abs(self.oznacena_figura.j - j) == 2:
             if j == 2:
                 poteza = 'leva_rošada'
             elif j == 6:
                 poteza = 'desna_rošada'
-        if sah2.v_sahovnici((i, j)) and poteza in self.dovoljene_poteze:
-            self.sah.naredi_potezo(self.oznacena_figura, poteza)
-            self.prvi_klik = True
-            self.izpis_potez.set(str(i)+", "+str(j)+'\t2.klik')
-            #oznaka_izpis_potez = tk.Label(self.okvir_oznake, textvariable=tk.StringVar(value=str(i)+", "+str(j)+'\t2.klik'))
-            #oznaka_izpis_potez.pack()
-            self.prikaz_figur()
-            return
-        self.prvi_klik = True
+        if self.sah.naredi_potezo(self.oznacena_figura, poteza):
+            self.izpis_potez.set('premaknemo {}'.format(self.oznacena_figura))
+        else:
+            self.izpis_potez.set('Označimo None')
+        self.oznacena_figura = None
         self.prikaz_figur()
+        self.sah.stanje_igre()
+        if self.sah.zmagovalec is not None:
+            self.izpis_potez.set('zmagal je {}'.format(self.sah.zmagovalec))
 
 
-    def prikaz_figur(self, plave_tocke = []):
+
+    def prikaz_figur(self, plave_tocke=[]):
         '''Pobriše vse figure in nariše nove.'''
         self.platno.delete(FIGURA)
         self.platno.delete(PLAVI)
@@ -263,3 +236,15 @@ if __name__ == "__main__":
 
     # Kontrolo pustimo glavnemu oknu
     root.mainloop()
+
+
+
+#==========================================================================
+def koncaj_igro(self, zmagovalec):
+    '''Nastavi stanje igre na konec igre.'''
+    if zmagovalec == IGRALEC_BELI:
+        self.izpis_potez.set('Zmagal je beli.')
+    elif zmagovalec == IGRALEC_CRNI:
+        self.izpis_potez.set('Zmagal je črni.')
+    else:
+        self.izpis_potez.set('Neodločeno.')

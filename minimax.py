@@ -1,3 +1,5 @@
+import logging
+
 class Minimax:
     # Objekt, ki hrani stanje igre in algoritma, nima pa dostopa do GUI,
     # ker ga ne sme uporablati, saj deluje v drugem vlaknu kot tkinter.
@@ -42,15 +44,15 @@ class Minimax:
             logging.debug("Minimax prekinja, globina = {0}".format(globina))
             return (None, 0)
         (zmagovalec, lst) = self.igra.stanje_igre()
-        if zmagovalec in (IGRALEC_X, IGRALEC_O, NEODLOCENO):
+        if zmagovalec in ('beli', 'crni', 'neodloceno'):
             # Igre je konec, vrnemo njeno vrednost
-            if znagovalec == self.jaz:
+            if zmagovalec == self.jaz:
                 return (None, Minimax.ZMAGA)
-            elif zmagovalec == nasprotnik(slef.jaz):
+            elif zmagovalec == nasprotnik(self.jaz):
                 return (None, -Minimax.ZMAGA)
             else:
                 return (None, 0)
-        elif zmagovalec == NI_KONEC:
+        elif zmagovalec == None:
             # Igre ni konec
             if globina == 0:
                 return (None, self.vrednost_pozicije())
@@ -62,7 +64,7 @@ class Minimax:
                     vrednost_najboljse = -Minimax.NESKONCNO
                     for p in self.igra.veljavne_poteze():
                         self.igra.povleci_potezo(p)
-                        vrednost = self.minimax(globina-1, not maskimiziramo)[1]
+                        vrednost = self.minimax(globina-1, not maksimiziramo)[1]
                         self.igra.razveljavi()
                         if vrednost > vrednost_najboljse:
                             vrednost_najbolje = vrednost
@@ -76,7 +78,7 @@ class Minimax:
                         vrednost = self.minimax(globina-1, not maksimiziramo)[1]
                         self.igra.razveljavi()
                         if vrednost < vrednost_najboljse:
-                            vrednost_najboljse = vrednostnajboljsa_poteza = p
+                            vrednost_najboljse  = p
                 assert (najboljsa_poteza is not None), "minimax: izračunana poteza je None"
                 return (najboljsa_poteza, vrednost_najboljse)
 
