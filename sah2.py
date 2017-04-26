@@ -1,6 +1,7 @@
 import math
 import tkinter as tk
 import os
+from copy import *
 
 
 #os.path.join(dir = os.path.dirname(__file__), r"/slike_figur/kraljica_{}i.gif".format(self.barva)
@@ -200,9 +201,9 @@ class Sah():
     def kopija(self):
         '''Vrne kopijo trenutnega stanja igre. Uporabno za minimax.'''
         sah = Sah()
-        sah.figure = self.figure.deep_copy()
+        sah.figure = deepcopy(self.figure)
         sah.na_vrsti = self.na_vrsti
-        sah.igra = self.igra.deep_copy
+        sah.igra = deepcopy(self.igra)
         self.slika = self.figure_v_sliko()
         return sah
 

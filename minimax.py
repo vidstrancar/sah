@@ -20,7 +20,7 @@ class Minimax:
         # To metodo pokličemo iz vzporednega vlakna.
         self.igra = igra
         self.prekinitev = False # Glavno vlakno bo to nastavilo na Ture, če moramo nehati
-        self.jaz = self.igra.na_potezi
+        self.jaz = self.igra.na_vrsti
         self.poteza = None # sem napišemo potezo, ki jo najedmo
         # Poženemo minimax
         (poteza, vrednost) = self.minimax(self.globina, True)

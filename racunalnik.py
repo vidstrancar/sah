@@ -30,7 +30,7 @@ class Racunalnik():
         self.mislec.start()
 
         # Preverjamo, ali je bila najdena poteza
-        self.gui.plosca.after(100, self.preveri_potezo)
+        self.gui.platno.after(100, self.preveri_potezo)
 
     def preveri_potezo(self):
         '''Vsakih 100ms preveri, ali je algoritem že izračunal potezo.'''
@@ -43,7 +43,7 @@ class Racunalnik():
             self.mislec = None
         else:
             # Algoritem še ni našel poteze, preveri še enkrat čez 100 ma
-            self.gui.plosca.after(100, self.preveri_potezo)
+            self.gui.platno.after(100, self.preveri_potezo)
 
     def prekini(self):
         '''To metodo kliče GUI, če je treba prekiniti razmišljanje.'''

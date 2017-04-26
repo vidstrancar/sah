@@ -25,7 +25,7 @@ class Sahovnica():
     def __init__(self, master, globina):
         self.igralec_beli = None # (nastavimo ob začetku igre)
         self.igralec_crni = None
-        self.sah = None
+        self.sah = sah2.Sah()
 
         # Ob zaprtju okna
         master.protocol("WM_DELETE_WINDOW", lambda: self.zapri_okno(master))
@@ -71,7 +71,7 @@ class Sahovnica():
 
 
         # Začnemo igro v načinu človek proti računalniku
-        self.zacni_igro(Clovek(self), Racunalnik(self, Minimax(globina)))
+        self.zacni_igro(Racunalnik(self, Minimax(globina)), Clovek(self))
 
     def vrni_potezo(self, event):
         self.izpis_potez.set('Vračamo potezo.')
@@ -83,13 +83,16 @@ class Sahovnica():
         '''Nastavi stanje na začetek igre. Za igralca uporabi dana igralca.'''
         # Ustavimo vse igralce, ki morda razmišljajo.
         self.prekini_igralce()
-        # Nastavimo igralca
-        self.igralec_beli = beli
-        self.igralec_crni = crni
+
         # Začnemo novo igro
         self.sah = sah2.Sah()
         self.prikaz_figur()
         self.izpis_potez.set("Na potezi je beli.")
+
+        # Nastavimo igralca
+        self.igralec_beli = beli
+        self.igralec_crni = crni
+
         self.igralec_beli.igraj()
         # nastavi odštevalnik ure
 
