@@ -16,15 +16,17 @@ class Minimax:
         self.prekinitev = True
 
     def izracunaj_potezo(self, igra):
-        '''Izračuna potezo za trenutno stanje igre.'''
+        '''Izračuna 'najboljšo' potezo za trenutno stanje igre.'''
         # To metodo pokličemo iz vzporednega vlakna.
         self.igra = igra
-        self.prekinitev = False # Glavno vlakno bo to nastavilo na Ture, če moramo nehati
+        self.prekinitev = False # Glavno vlakno bo to nastavilo na True, če moramo nehati
         self.jaz = self.igra.na_vrsti
-        self.poteza = None # sem napišemo potezo, ki jo najedmo
+        self.nasprotnik = self.igra.nasprotna_barva()
+        self.poteza = None # Sem napišemo potezo, ki jo najedmo
         # Poženemo minimax
         (poteza, vrednost) = self.minimax(self.globina, True)
         self.jaz = None
+        self.nasprotnik = None
         self.igra = None
         if not self.prekinitev:
             # Potezo izvedemo v primeru, da nismo bili prekinjeni
@@ -35,56 +37,64 @@ class Minimax:
     ZMAGA = 10000000
     NESKONCNO = ZMAGA + 1
 
+
     def vrednost_pozicije(self):
         '''Sešteje vrednosti figur na šahovnici.'''
         vsota_figur = 0
-        for figura in self.igra.figure:
-            vsota_figur += figura.vrednost
+        for figura in self.igra.figure[self.igra.na_vrsti]:
+            if figura.ziv:
+                vsota_figur += figura.vrednost
         return vsota_figur
 
     def minimax(self, globina, maksimiziramo):
+        # print(self.igra.figure)
         '''Glavna metoda minimax.'''
         if self.prekinitev:
             logging.debug("Minimax prekinja, globina = {0}".format(globina))
             return (None, 0)
         zmagovalec = self.igra.stanje_igre()
-        if zmagovalec in ('beli', 'crni', 'neodloceno'):
+        if zmagovalec in ('bel', 'crn', 'neodloceno'):
             # Igre je konec, vrnemo njeno vrednost
             if zmagovalec == self.jaz:
                 return (None, Minimax.ZMAGA)
-            elif zmagovalec == nasprotnik(self.jaz):
+            elif zmagovalec == self.nasprotnik:
                 return (None, -Minimax.ZMAGA)
             else:
                 return (None, 0)
-        elif zmagovalec == None:
+        elif zmagovalec is None:
             # Igre ni konec
             if globina == 0:
-                return ((None, None), self.vrednost_pozicije())
+                return (None, self.vrednost_pozicije())
             else:
                 # Naredimo eno stopnjo minimax
                 if maksimiziramo:
-                    # Maksimiziramo
-                    najboljsa_poteza = (None, None)
-                    vrednost_najboljse = -Minimax.NESKONCNO
-                    for figura in self.igra.figure:
-                        for p in self.igra.dovoljene_poteze_iterator(figura):
-                            self.igra.naredi_potezo(p)
-                            vrednost = self.minimax(globina-1, not maksimiziramo)[1]
-                            self.igra.vrni_potezo()
-                            if vrednost > vrednost_najboljse:
-                                vrednost_najboljse = vrednost
-                                najboljsa_poteza = (figura, p)
-                else:
-                    # Minimiziramo
-                    najboljsa_poteza = (None, None)
+                    # Maksimiziramo, kar je enako, kot da minimiziramo nasprotnika
+                    # PROBLEM: KO POVLEČEMO POTEZO, SE ŠTEVILO NAŠIH TOČK NE SPREMENI
+                    najboljsa_poteza = None
                     vrednost_najboljse = Minimax.NESKONCNO
-                    for figura in self.igra.figure:
-                        for p in self.igra.dovoljene_poteze_iterator():
+                    for figura in self.igra.figure[self.igra.na_vrsti]:
+                        for p in list(self.igra.dovoljene_poteze_iterator(figura)):
                             self.igra.naredi_potezo(figura, p)
                             vrednost = self.minimax(globina-1, not maksimiziramo)[1]
                             self.igra.vrni_potezo()
+                            # print(figura, end='')
+                            # print('poteza: {}, vrednost: {}'.format(p, vrednost))
                             if vrednost < vrednost_najboljse:
+                                vrednost_najboljse = vrednost
+                                najboljsa_poteza = (figura, p)
+                else:
+                    # Minimiziramo nasprotnika, torej maksimiziramo sebe :)
+                    najboljsa_poteza = None
+                    vrednost_najboljse = -Minimax.NESKONCNO
+                    for figura in self.igra.figure[self.igra.na_vrsti]:
+                        for p in list(self.igra.dovoljene_poteze_iterator(figura)):
+                            self.igra.naredi_potezo(figura, p)
+                            vrednost = self.minimax(globina-1, not maksimiziramo)[1]
+                            self.igra.vrni_potezo()
+                            if vrednost > vrednost_najboljse:
                                 vrednost_najboljse  = vrednost
+                                najboljsa_poteza = (figura, p)
+
                 assert (najboljsa_poteza is not None), "minimax: izračunana poteza je None"
                 return (najboljsa_poteza, vrednost_najboljse)
 

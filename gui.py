@@ -14,7 +14,7 @@ from clovek import *
 from racunalnik import *
 from minimax import *
 
-MINIMAX_GLOBINA = 2
+MINIMAX_GLOBINA = 3
 
 
 class Sahovnica():
@@ -25,7 +25,7 @@ class Sahovnica():
     def __init__(self, master, globina):
         self.igralec_beli = None # (nastavimo ob začetku igre)
         self.igralec_crni = None
-        self.sah = sah2.Sah()
+        self.sah = None
 
         # Ob zaprtju okna
         master.protocol("WM_DELETE_WINDOW", lambda: self.zapri_okno(master))
@@ -40,12 +40,14 @@ class Sahovnica():
         menu_igra.add_command(label="Človek - Človek",
                               command=lambda: self.zacni_igro(Clovek(self), Clovek(self)))
         menu_igra.add_command(label="Človek - Računalnik",
-                              command=lambda: self.zacni_igro(Clovek(self), racunalnik.Racunalnik(self, Minimax(globina))))
+                              command=lambda: self.zacni_igro(Clovek(self), Racunalnik(self, Minimax(globina))))
+
+        menu_igra.add_command(label="Računalnik - Računalnik",
+                              command=lambda: self.zacni_igro(Racunalnik(self, Minimax(globina)), Racunalnik(self, Minimax(globina))))
 
         # Igralna površina
-        self.platno = tk.Canvas(master, width=Sahovnica.VELIKOST_POLJA * 10, height=Sahovnica.VELIKOST_POLJA * 10)
-        self.platno.grid(row=1, column=0)
-        # self.platno.pack()
+        self.plosca = tk.Canvas(master, width=Sahovnica.VELIKOST_POLJA * 10, height=Sahovnica.VELIKOST_POLJA * 10)
+        self.plosca.grid(row=1, column=0)
 
         # Dovoljeni kliki
         self.prvi_klik = True
@@ -58,11 +60,10 @@ class Sahovnica():
         self.narisi_sahovnico()
 
 
-        # registriramo se za klike z miško
-
-        self.platno.bind('<Button-1>', self.klik)
-        self.platno.bind('<Control-z>', self.vrni_potezo)
-        self.platno.focus_force()
+        # registriramo se za klike z miško in tipkovnico
+        self.plosca.bind('<Button-1>', self.klik)
+        self.plosca.bind('<Control-z>', self.vrni_potezo)
+        self.plosca.focus_force()
 
 
         # Oznaka za izpisovanje
@@ -71,7 +72,9 @@ class Sahovnica():
 
 
         # Začnemo igro v načinu človek proti računalniku
-        self.zacni_igro(Racunalnik(self, Minimax(globina)), Clovek(self))
+        self.zacni_igro(Clovek(self), Racunalnik(self, Minimax(globina)))
+
+
 
     def vrni_potezo(self, event):
         self.izpis_potez.set('Vračamo potezo.')
@@ -115,7 +118,7 @@ class Sahovnica():
         for i in range(8):  # vrstice
             for j in range(8):  # stolpci
                 barva = "white" if (i + j) % 2 == 0 else "gray"
-                id_polja = self.platno.create_rectangle(x1, y1, x1 + Sahovnica.VELIKOST_POLJA, y1 + Sahovnica.VELIKOST_POLJA,
+                id_polja = self.plosca.create_rectangle(x1, y1, x1 + Sahovnica.VELIKOST_POLJA, y1 + Sahovnica.VELIKOST_POLJA,
                                                         fill=barva, tag=POLJE)
                 matrika_id[i][j] = id_polja
                 x1 += Sahovnica.VELIKOST_POLJA  # naslednji kvadratek v vrsti
@@ -136,7 +139,7 @@ class Sahovnica():
             barva = "blue"
             x1 = Sahovnica.ODMIK + j * Sahovnica.VELIKOST_POLJA
             y1 = Sahovnica.ODMIK + i * Sahovnica.VELIKOST_POLJA
-            self.platno.create_rectangle(x1, y1, x1 + Sahovnica.VELIKOST_POLJA, y1 + Sahovnica.VELIKOST_POLJA, fill=barva, tag=PLAVI)
+            self.plosca.create_rectangle(x1, y1, x1 + Sahovnica.VELIKOST_POLJA, y1 + Sahovnica.VELIKOST_POLJA, fill=barva, tag=PLAVI)
 
     def klik(self, event):
         '''Ogdovori na klik uporabnika. Sporočimo tistemu, ki je na potezi'''
@@ -145,7 +148,7 @@ class Sahovnica():
             j = int((event.x - Sahovnica.ODMIK) // Sahovnica.VELIKOST_POLJA) # stolpec
             poteza = (i, j)
 
-            # self.platno.itemconfig(self.text, text="klik.")
+            # self.plosca.itemconfig(self.text, text="klik.")
             if sah2.v_sahovnici(poteza):
                 if self.sah.na_vrsti == 'bel':
                     self.igralec_beli.klik(poteza)
@@ -167,34 +170,48 @@ class Sahovnica():
                 self.prikaz_figur(plave_tocke = self.dovoljene_poteze) # pobarvamo dovoljena polja
             else:
                 self.oznacen_figura = None
-            self.izpis_potez.set('označimo {}'.format(self.oznacena_figura))
         else:
             self.premakni_figuro(self.oznacena_figura, poteza)
 
     def premakni_figuro(self, figura, poteza):
         '''Premakne figuro, če je poteza veljavna.'''
+        print('gui prejel ukaz, naj premakne {} na {}'.format(figura, poteza))
+        self.oznacena_figura = figura
         i, j = poteza
         if self.oznacena_figura.vrsta == 'kralj' and abs(self.oznacena_figura.j - j) == 2:
             if j == 2:
                 poteza = 'leva_rošada'
             elif j == 6:
                 poteza = 'desna_rošada'
-        if self.sah.naredi_potezo(self.oznacena_figura, poteza):
-            self.izpis_potez.set('premaknemo {}'.format(self.oznacena_figura))
-        else:
-            self.izpis_potez.set('Označimo None')
+
+        self.sah.naredi_potezo(self.oznacena_figura, poteza)
+
         self.oznacena_figura = None
         self.prikaz_figur()
+
+
+
+
+        # predamo igro naslednjemu igralcu
+        if self.sah.na_vrsti == 'bel':
+            self.izpis_potez.set('Na potezi je beli.')
+            self.igralec_beli.igraj()
+        elif self.sah.na_vrsti == 'crn':
+            self.izpis_potez.set('Na potezi je črni.')
+            self.igralec_crni.igraj()
+
+        # preverimo, ali je prišlo do zmage
         self.sah.stanje_igre()
         if self.sah.zmagovalec is not None:
-            self.izpis_potez.set('zmagal je {}'.format(self.sah.zmagovalec))
+            self.izpis_potez.set('Zmagal je {}i.'.format(self.sah.zmagovalec))
+
 
 
 
     def prikaz_figur(self, plave_tocke=[]):
         '''Pobriše vse figure in nariše nove.'''
-        self.platno.delete(FIGURA)
-        self.platno.delete(PLAVI)
+        self.plosca.delete(FIGURA)
+        self.plosca.delete(PLAVI)
         self.narisi_plave(plave_tocke)
         bele = self.sah.figure['bel']
         crne = self.sah.figure['crn']
@@ -203,7 +220,7 @@ class Sahovnica():
                 foto = figura.foto
                 x = Sahovnica.ODMIK + (figura.j * Sahovnica.VELIKOST_POLJA) + Sahovnica.VELIKOST_POLJA / 2
                 y = Sahovnica.ODMIK + (figura.i * Sahovnica.VELIKOST_POLJA) + Sahovnica.VELIKOST_POLJA/2
-                foto_id = self.platno.create_image(x, y, image=foto, tag=FIGURA)
+                foto_id = self.plosca.create_image(x, y, image=foto, tag=FIGURA)
                 figura.foto_id = foto_id
 
 
