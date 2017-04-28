@@ -8,6 +8,7 @@ PLAVI="plavi"
 import tkinter as tk
 import argparse        # za argumente iz ukazne vrstice
 import logging         # za odpravljanje napak
+import os
 
 import sah2
 from clovek import *
@@ -71,8 +72,9 @@ class Sahovnica():
         tk.Label(master, textvariable=self.izpis_potez).grid(row=0, column=0)
 
 
-        # Začnemo igro v načinu človek proti računalniku
-        self.zacni_igro(Clovek(self), Racunalnik(self, Minimax(globina)))
+        # Začnemo igro v načinu __ proti __
+        self.zacni_igro(Clovek(self), Clovek(self))
+        # self.zacni_igro(Racunalnik(self, Minimax(globina)), Racunalnik(self, Minimax(globina)))
 
 
 
@@ -89,12 +91,15 @@ class Sahovnica():
 
         # Začnemo novo igro
         self.sah = sah2.Sah()
+        self.vzpostavi_slike_figur()
         self.prikaz_figur()
         self.izpis_potez.set("Na potezi je beli.")
 
         # Nastavimo igralca
         self.igralec_beli = beli
         self.igralec_crni = crni
+
+
 
         self.igralec_beli.igraj()
         # nastavi odštevalnik ure
@@ -205,8 +210,15 @@ class Sahovnica():
         if self.sah.zmagovalec is not None:
             self.izpis_potez.set('Zmagal je {}i.'.format(self.sah.zmagovalec))
 
+    # os.path.join(dir = os.path.dirname(__file__), r"/slike_figur/kraljica_{}i.gif".format(self.barva)
 
-
+    def vzpostavi_slike_figur(self):
+        '''Poveže vsako figuro z njeno sliko.'''
+        self.slike_figur = dict()
+        for figura in (self.sah.figure['bel'] + self.sah.figure['crn']):
+            datoteka = os.path.join(os.path.dirname(__file__), 'slike_figur', '{}_{}i.gif'.format(figura.vrsta, figura.barva))
+            foto = tk.PhotoImage(file=datoteka)
+            self.slike_figur[figura] = foto
 
     def prikaz_figur(self, plave_tocke=[]):
         '''Pobriše vse figure in nariše nove.'''
@@ -215,13 +227,13 @@ class Sahovnica():
         self.narisi_plave(plave_tocke)
         bele = self.sah.figure['bel']
         crne = self.sah.figure['crn']
-        for figura in bele + crne:
+        for figura in self.sah.figure['bel'] + self.sah.figure['crn']:
             if figura.ziv:
-                foto = figura.foto
+                foto = self.slike_figur[figura]
                 x = Sahovnica.ODMIK + (figura.j * Sahovnica.VELIKOST_POLJA) + Sahovnica.VELIKOST_POLJA / 2
                 y = Sahovnica.ODMIK + (figura.i * Sahovnica.VELIKOST_POLJA) + Sahovnica.VELIKOST_POLJA/2
-                foto_id = self.plosca.create_image(x, y, image=foto, tag=FIGURA)
-                figura.foto_id = foto_id
+                self.plosca.create_image(x, y, image=foto, tag=FIGURA)
+
 
 
 if __name__ == "__main__":

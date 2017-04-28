@@ -1,16 +1,10 @@
-import tkinter as tk
 import os
 from copy import *
-
-
-#os.path.join(dir = os.path.dirname(__file__), r"/slike_figur/kraljica_{}i.gif".format(self.barva)
-#self.foto = tk.PhotoImage(file=r"slike_figur\kraljica_{}i.gif".format(self.barva))
 
 
 def v_sahovnici(polozaj):
     x, y = polozaj
     return  0 <= x <= 7 and 0 <= y <= 7
-
 
 
 class Figura:
@@ -19,8 +13,6 @@ class Figura:
         self.barva = barva
         self.i, self.j = polozaj # stolpec, vrstica
         self.vektorji_premika = []
-        self.foto = None
-        self.foto_id = None
 
 
     def izracunaj_dovoljene_premike_iterator(self, slika,
@@ -54,7 +46,6 @@ class Kraljica(Figura):
         Figura.__init__(self, polozaj, barva)
         self.vrsta = 'kraljica'
         self.vektorji_premika = [(-1, 1), (1, 1), (-1, -1), (1, -1), (0, 1), (0, -1), (1, 0), (-1, 0)]
-        self.foto = tk.PhotoImage(file=r"slike_figur/kraljica_{}i.gif".format(self.barva))
         self.vrednost = 9
 
 
@@ -63,7 +54,6 @@ class Lovec(Figura):
         Figura.__init__(self, polozaj, barva)
         self.vrsta = 'lovec'
         self.vektorji_premika = [(-1, 1), (1, 1), (-1, -1), (1, -1)]
-        self.foto = tk.PhotoImage(file=r"slike_figur/lovec_{}i.gif".format(self.barva))
         self.vrednost = 3
 
 
@@ -72,7 +62,6 @@ class Konj(Figura):
         Figura.__init__(self, polozaj, barva)
         self.vrsta = 'konj'
         self.vektorji_premika = [(1, 2), (-1, 2), (-2, 1), (-2, -1), (-1, -2), (1, -2), (2, -1), (2, 1)]
-        self.foto = tk.PhotoImage(file=r"slike_figur/konj_{}i.gif".format(self.barva))
         self.vrednost = 3
 
     def izracunaj_dovoljene_premike_iterator(self, slika, igra):
@@ -90,7 +79,6 @@ class Trdnjava(Figura):
         self.vrsta = 'trdnjava'
         self.premaknjen = False
         self.vektorji_premika = [(0, 1), (0, -1), (1, 0), (-1, 0)]
-        self.foto = tk.PhotoImage(file=r"slike_figur/trdnjava_{}i.gif".format(self.barva))
         self.vrednost = 5
 
     def premakni(self, koncna_lokacija):
@@ -106,7 +94,6 @@ class Kralj(Figura):
         self.vrsta = 'kralj'
         self.premaknjen = False
         self.vektorji_premika = [(0, 1), (1, 1), (1, 0), (1, -1), (0, -1), (-1, -1), (-1, 0), (-1, 1)]
-        self.foto = tk.PhotoImage(file=r"slike_figur/kralj_{}i.gif".format(self.barva))  ##pa ja nje v figuri!
         self.vrednost = 0
 
     def izracunaj_dovoljene_premike_iterator(self, slika,
@@ -151,7 +138,6 @@ class Kmet(Figura):
         self.vrsta = 'kmet'
         self.vektorji_premika = [(1, 0), (2, 0), (1, 1), (1, -1)]
         self.koeficient = -1 if self.barva == 'bel' else 1
-        self.foto = tk.PhotoImage(file=r"slike_figur/kmet_{}i.gif".format(self.barva))
         self.vrednost = 1
 
     def izracunaj_dovoljene_premike_iterator(self, slika, igra):  ##dodaj en passeu
