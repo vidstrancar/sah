@@ -15,7 +15,7 @@ from clovek import *
 from racunalnik import *
 from minimax import *
 
-MINIMAX_GLOBINA = 3
+MINIMAX_GLOBINA = 2
 
 
 class Sahovnica():
@@ -51,11 +51,10 @@ class Sahovnica():
         self.plosca.grid(row=1, column=0)
 
         # Dovoljeni kliki
-        self.prvi_klik = True
-        self.dovoljeni_drugi_kliki = []
-        self.prvi_klikx = self.prvi_kliky = 0
+        self.prvi_klik = None # Označitev figure
 
-        self.oznacena_figura = None
+        # Slovar slik vseh figur
+        self.slike_figur = None
 
         # narišemo šahovnico
         self.narisi_sahovnico()
@@ -73,7 +72,8 @@ class Sahovnica():
 
 
         # Začnemo igro v načinu __ proti __
-        self.zacni_igro(Clovek(self), Clovek(self))
+        # self.zacni_igro(Clovek(self), Clovek(self))
+        self.zacni_igro(Clovek(self), Racunalnik(self, Minimax(globina)))
         # self.zacni_igro(Racunalnik(self, Minimax(globina)), Racunalnik(self, Minimax(globina)))
 
 
@@ -99,10 +99,9 @@ class Sahovnica():
         self.igralec_beli = beli
         self.igralec_crni = crni
 
-
-
+        # nastavi odštevalnik ure in predaj potezo belemu
         self.igralec_beli.igraj()
-        # nastavi odštevalnik ure
+
 
 
     def prekini_igralce(self):
@@ -165,52 +164,49 @@ class Sahovnica():
             else:
                 logging.debug("klik izven ploše")
 
-    def razberi_potezo(self, poteza):
+    def razberi_potezo(self, klik):
         '''Prebere prvi in drugi klik.'''
-        i, j = poteza
-        if self.oznacena_figura is None: # označimo figuro
+        i, j = klik
+        if self.prvi_klik is None: # označimo figuro
             if (self.sah.slika[i][j] != None) and (self.sah.na_vrsti == self.sah.slika[i][j].barva):
-                self.oznacena_figura = self.sah.slika[i][j]
-                self.dovoljene_poteze = list(self.sah.dovoljene_poteze_iterator(self.oznacena_figura))
+                self.prvi_klik = (i, j)
+                self.dovoljene_poteze = list(self.sah.dovoljene_poteze_iterator(self.sah.slika[i][j]))
                 self.prikaz_figur(plave_tocke = self.dovoljene_poteze) # pobarvamo dovoljena polja
             else:
-                self.oznacen_figura = None
-        else:
-            self.premakni_figuro(self.oznacena_figura, poteza)
+                self.prvi_klik = None
+        else: # figuro že imamo označeno
+            self.premakni_figuro(self.prvi_klik, klik)
 
-    def premakni_figuro(self, figura, poteza):
+    def premakni_figuro(self, prvi_klik, poteza):
         '''Premakne figuro, če je poteza veljavna.'''
-        print('gui prejel ukaz, naj premakne {} na {}'.format(figura, poteza))
-        self.oznacena_figura = figura
-        i, j = poteza
-        if self.oznacena_figura.vrsta == 'kralj' and abs(self.oznacena_figura.j - j) == 2:
-            if j == 2:
-                poteza = 'leva_rošada'
-            elif j == 6:
-                poteza = 'desna_rošada'
+        print('gui prejel ukaz, naj premakne {} na {}'.format(prvi_klik, poteza))
+        # i, j = poteza
+        # if self.oznacena_figura.vrsta == 'kralj' and abs(self.oznacena_figura.j - j) == 2:
+        #     if j == 2:
+        #         poteza = 'leva_rošada'
+        #     elif j == 6:
+        #         poteza = 'desna_rošada'
 
-        self.sah.naredi_potezo(self.oznacena_figura, poteza)
-
-        self.oznacena_figura = None
+        veljavna = self.sah.naredi_potezo(prvi_klik, poteza)
+        self.prvi_klik = None
         self.prikaz_figur()
 
+        # predamo igro naslednjemu igralcu, če je bila poteza veljavna
+        if veljavna:
+            if self.sah.na_vrsti == 'bel':
+                self.izpis_potez.set('Na potezi je {}i.'.format(self.sah.na_vrsti))
+                self.igralec_beli.igraj()
+            elif self.sah.na_vrsti == 'crn':
+                self.izpis_potez.set('Na potezi je {}i.'.format(self.sah.na_vrsti))
+                self.igralec_crni.igraj()
 
+            # preverimo, ali je prišlo do zmage
+            self.sah.stanje_igre()
+            if self.sah.zmagovalec is not None:
+                self.izpis_potez.set('Zmagal je {}i.'.format(self.sah.zmagovalec))
+        else:
+            self.izpis_potez.set('Neveljavna poteza. Na potezi je {}i.'.format(self.sah.na_vrsti))
 
-
-        # predamo igro naslednjemu igralcu
-        if self.sah.na_vrsti == 'bel':
-            self.izpis_potez.set('Na potezi je beli.')
-            self.igralec_beli.igraj()
-        elif self.sah.na_vrsti == 'crn':
-            self.izpis_potez.set('Na potezi je črni.')
-            self.igralec_crni.igraj()
-
-        # preverimo, ali je prišlo do zmage
-        self.sah.stanje_igre()
-        if self.sah.zmagovalec is not None:
-            self.izpis_potez.set('Zmagal je {}i.'.format(self.sah.zmagovalec))
-
-    # os.path.join(dir = os.path.dirname(__file__), r"/slike_figur/kraljica_{}i.gif".format(self.barva)
 
     def vzpostavi_slike_figur(self):
         '''Poveže vsako figuro z njeno sliko.'''

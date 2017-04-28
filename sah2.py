@@ -1,5 +1,5 @@
 import os
-from copy import *
+from copy import deepcopy
 
 
 def v_sahovnici(polozaj):
@@ -178,7 +178,6 @@ class Sah():
                                Kraljica((0, 3), 'crn'),
                                Kralj((0, 4), 'crn')]}
 
-
         self.slika = self.figure_v_sliko()
 
 
@@ -188,7 +187,6 @@ class Sah():
         for figura in self.figure[self.na_vrsti]:
             poteze_figure = list(self.dovoljene_poteze_iterator(figura))
             poteze[figura] = poteze_figure
-            # print(figura, poteze_figure)
         return poteze
 
 
@@ -196,11 +194,9 @@ class Sah():
     def kopija(self):
         '''Vrne kopijo trenutnega stanja igre. Uporabno za minimax.'''
         sah = Sah()
-        # sah.figure = deepcopy(self.figure)
-        sah.figure = self.figure.copy()
+        sah.figure = deepcopy(self.figure)
         sah.na_vrsti = self.na_vrsti
-        # sah.igra = deepcopy(self.igra)
-        sah.igra = self.igra.copy()
+        sah.igra = deepcopy(self.igra)
         sah.slika = self.figure_v_sliko()
         return sah
 
@@ -259,8 +255,10 @@ class Sah():
         self.slika[i_k][j_k] = figura
 
 
-    def naredi_potezo(self, figura, poteza):
-        '''Služi kot filter za rošade in en-passante.'''
+    def naredi_potezo(self, prvi_klik, poteza):
+        '''Če je poteza veljavna, jo naredi in vrne True.'''
+        i, j = prvi_klik
+        figura = self.slika[i][j]
         if poteza in self.dovoljene_poteze_iterator(figura):
             # promocija kmeta
             # zadnja_vrsta = 0 if figura.barva == 'bel' else 7
@@ -271,18 +269,18 @@ class Sah():
             #     self.figure_v_sliko()
             #     self.premakni_figuro(nova_kraljica, poteza)
             # rošadi
-            if poteza == 'leva_rošada':
-                self.premakni_figuro(figura, (figura.i, 2)) # premaknemo kralja
-                self.premakni_figuro(self.slika[figura.i][0], (figura.i, 3)) # premaknemo trdnjavo
-            elif poteza == 'desna_rošada':
-                self.premakni_figuro(figura, (figura.i, 6))
-                self.premakni_figuro(self.slika[figura.i][7], (figura.i, 5))
-            else:
-                # print('sah prejel ukaz, naj premakne {} na {}'.format(figura, poteza))
-                self.premakni_figuro(figura, poteza)
-                # print('sah premaknil figuro')
-                # for figura in self.figure[self.na_vrsti]:
-                    # print(figura)
+            # if poteza == 'leva_rošada':
+            #     self.premakni_figuro(figura, (figura.i, 2)) # premaknemo kralja
+            #     self.premakni_figuro(self.slika[figura.i][0], (figura.i, 3)) # premaknemo trdnjavo
+            # elif poteza == 'desna_rošada':
+            #     self.premakni_figuro(figura, (figura.i, 6))
+            #     self.premakni_figuro(self.slika[figura.i][7], (figura.i, 5))
+            # else:
+            print('sah prejel ukaz, naj premakne {} na {}'.format(figura, poteza))
+            self.premakni_figuro(figura, poteza)
+            # print('sah premaknil figuro')
+            # for figura in self.figure[self.na_vrsti]:
+                # print(figura)
             # spremenimo, kdo je na vrsti
             self.na_vrsti = self.nasprotna_barva()
             return True

@@ -25,9 +25,9 @@ class Racunalnik():
         '''Vsakih 100ms preveri, ali je algoritem že izračunal potezo.'''
         if self.algoritem.poteza is not None: # ENA VELIKA ZMEŠNJAVA: None in (None, None) !!!
             # Algoritem je že našel potezo. Povlečemo jo, če ni bilo prekinitve.
-            figura, poteza = self.algoritem.poteza
-            print('Računalnik je našel potezo: {} premakne na {}'.format(figura, poteza))
-            self.gui.premakni_figuro(figura, poteza)
+            prvi_klik, poteza = self.algoritem.poteza
+            print('Računalnik je našel potezo: {} premakne na {}'.format(prvi_klik, poteza))
+            self.gui.premakni_figuro(prvi_klik, poteza)
             # Vzporedno vlakno ni več aktivno, zato ga 'pozabimo'
             self.mislec = None
         elif self.algoritem.poteza is None:
