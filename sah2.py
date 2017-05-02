@@ -30,8 +30,8 @@ class Figura:
 
     def pojej(self):
         self.ziv = False
-        self.i *= -1
-        self.j *= -1
+        self.i = -1
+        self.j = -1
 
     def premakni(self, koncna_lokacija):
         i_koncen, j_koncen = koncna_lokacija
@@ -206,7 +206,7 @@ class Sah():
         '''Če je igre konec, nastavi zmagovalca.'''
         for figura in self.figure[self.na_vrsti]:
             if len(list(self.dovoljene_poteze_iterator(figura))) > 0:
-                return
+                return None
         self.zmagovalec = self.nasprotna_barva()
         return self.zmagovalec
 
@@ -230,7 +230,7 @@ class Sah():
                 slika[figura.i][figura.j] = figura
         return slika
 
-    def vrni_potezo(self):
+    def vrni_potezo(self, zamenjaj_igralca=True):
         '''Povrne situacijo pred eno potezo.'''
         if len(self.igra) != 0:
             poteza, pojedena_figura, figura = self.igra.pop()
@@ -239,49 +239,34 @@ class Sah():
             if pojedena_figura is not None:
                 self.premakni_figuro(pojedena_figura, (i, j), False)
                 pojedena_figura.ziv = True
-            self.na_vrsti = self.nasprotna_barva()
+            if zamenjaj_igralca:
+                self.na_vrsti = self.nasprotna_barva()
 
     def premakni_figuro(self, figura, poteza, belezi_zgo=True):
         '''Premakne figuro, spremeni njene atribute. Zabeleži v zgodovino igre.'''
         i_z, j_z = figura.i, figura.j
         i_k, j_k = poteza
         pojedena_figura = self.slika[i_k][j_k]  # lahko je tudi None
+        print('premikam {} -> {}'.format(figura, poteza))
         if belezi_zgo:
             self.igra.append(((i_z, j_z), pojedena_figura, figura))
         if self.slika[i_k][j_k] is not None:
+            print('figura, ki jo bomo pojedli:', self.slika[i_k][j_k], '===============')
             self.slika[i_k][j_k].pojej()
+##            for figura in self.figure['bel']:
+##                print(figura)
+            
         figura.premakni((i_k, j_k))
         self.slika[i_z][j_z] = None
         self.slika[i_k][j_k] = figura
 
 
-    def naredi_potezo(self, prvi_klik, poteza):
+    def naredi_potezo(self, figura, poteza):
         '''Če je poteza veljavna, jo naredi in vrne True.'''
-        i, j = prvi_klik
-        figura = self.slika[i][j]
-        if poteza in self.dovoljene_poteze_iterator(figura):
-            # promocija kmeta
-            # zadnja_vrsta = 0 if figura.barva == 'bel' else 7
-            # if figura.vrsta == 'kmet' and poteza[0] == zadnja_vrsta:
-            #     nova_kraljica = Kraljica((figura.i, figura.j), figura.barva)
-            #     figura.ziv = False
-            #     self.figure[figura.barva].append(nova_kraljica)
-            #     self.figure_v_sliko()
-            #     self.premakni_figuro(nova_kraljica, poteza)
-            # rošadi
-            # if poteza == 'leva_rošada':
-            #     self.premakni_figuro(figura, (figura.i, 2)) # premaknemo kralja
-            #     self.premakni_figuro(self.slika[figura.i][0], (figura.i, 3)) # premaknemo trdnjavo
-            # elif poteza == 'desna_rošada':
-            #     self.premakni_figuro(figura, (figura.i, 6))
-            #     self.premakni_figuro(self.slika[figura.i][7], (figura.i, 5))
-            # else:
+        veljavne_poteze_figure = list(self.dovoljene_poteze_iterator(figura))
+        if poteza in veljavne_poteze_figure:
             print('sah prejel ukaz, naj premakne {} na {}'.format(figura, poteza))
             self.premakni_figuro(figura, poteza)
-            # print('sah premaknil figuro')
-            # for figura in self.figure[self.na_vrsti]:
-                # print(figura)
-            # spremenimo, kdo je na vrsti
             self.na_vrsti = self.nasprotna_barva()
             return True
         return False
@@ -289,43 +274,11 @@ class Sah():
     def dovoljene_poteze_iterator(self, figura):
         '''Vrne seznam dovoljenih potez za posamezno figuro.'''
         for poteza in figura.izracunaj_dovoljene_premike_iterator(self.slika, self.igra):
-            if poteza == 'leva_rošada':
-                veljavna_leva = True
-                for j in [4, 3, 2]: # gledamo, ali bo kralj kdajkoli vmes v šahu
-                    if not self.simuliraj_potezo(figura, (figura.i, j)):
-                        veljavna_leva = False
-                if veljavna_leva:
-                    yield poteza
-            elif poteza == 'desna_rošada':
-                veljavna_desna = True
-                for j in [4, 5, 6]:
-                    if not self.simuliraj_potezo(figura, (figura.i, j)):
-                        veljavna_desna = False
-                if veljavna_desna:
-                    yield poteza                                                
-            # za vse druge primere                                     
-            elif self.simuliraj_potezo(figura, poteza):
+            self.premakni_figuro(figura, poteza) # Simuliramo
+            if not self.bo_sah_po_potezi():
                 yield poteza
-
-    def simuliraj_potezo(self, figura, poteza):
-        '''Simulira potezo, in vrne True, če je veljavna.'''
-        stari_i, stari_j = figura.i, figura.j
-        novi_i, novi_j = poteza
-        kar_je_na_novem_mestu = self.slika[novi_i][novi_j]
-        # sedaj simuliramo potezo, spreminjamo le stanje v matriki
-        self.slika[stari_i][stari_j] = None
-        self.slika[novi_i][novi_j] = figura
-        figura.i = novi_i
-        figura.j = novi_j
-        # preverimo, ali bo šah po potezi
-        bo_sah = self.bo_sah_po_potezi()
-        # vrnemo v prvotno stanje
-        self.slika[stari_i][stari_j] = figura
-        self.slika[novi_i][novi_j] = kar_je_na_novem_mestu
-        figura.i = stari_i
-        figura.j = stari_j
-        return not bo_sah
-
+            self.vrni_potezo(False)
+                         
     def bo_sah_po_potezi(self):
         '''Vrne True, če bo po potezi šah.'''
         kralj = self.vrni_kralja_na_vrsti()
@@ -341,7 +294,7 @@ class Sah():
                                     self.slika[i][j].vrsta in ['kraljica', druga_figura]):
                         return True
                     else:
-                        break  # druge figure niso nevarne
+                        break  # Druge figure niso nevarne
                 n += 1
                 i, j = kralj.i + n * vektor[0], kralj.j + n * vektor[1]
         # šah zaradi konja
