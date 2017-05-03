@@ -12,8 +12,14 @@ class Racunalnik():
     def igraj(self):
         '''Igraj potezo, ki jo vrne algoritem.'''
         # Naredimo vlakno, ki mu podamo kopijo igre, da ne zmedemo GUI-ja
+        kopija = self.gui.sah.kopija()
+        for vr1, vr2 in zip(kopija.slika, self.gui.sah.slika):  # Prepričamo se, da je kopija zvesta originalu
+            for figura1, figura2 in zip(vr1, vr2):
+                if str(figura1) != str(figura2):
+                    print('figura {} ni enaka {}'.format(figura1, figura2))
+                assert str(figura1) == str(figura2)
         self.mislec = threading.Thread(
-            target=lambda: self.algoritem.izracunaj_potezo(self.gui.sah.kopija()))
+            target=lambda: self.algoritem.izracunaj_potezo(kopija))
 
         # Poženemo vlakno
         self.mislec.start()
@@ -25,9 +31,9 @@ class Racunalnik():
         '''Vsakih 100ms preveri, ali je algoritem že izračunal potezo.'''
         if self.algoritem.poteza is not None: # ENA VELIKA ZMEŠNJAVA: None in (None, None) !!!
             # Algoritem je že našel potezo. Povlečemo jo, če ni bilo prekinitve.
-            prvi_klik, poteza = self.algoritem.poteza
-            print('Računalnik je našel potezo: {} premakne na {}'.format(prvi_klik, poteza))
-            self.gui.premakni_figuro(prvi_klik, poteza)
+            koordinati_figure, poteza = self.algoritem.poteza
+            print('Računalnik je našel potezo: {} premakne na {}'.format(koordinati_figure, poteza))
+            self.gui.premakni_figuro_racunalnik(koordinati_figure, poteza)
             # Vzporedno vlakno ni več aktivno, zato ga 'pozabimo'
             self.mislec = None
         elif self.algoritem.poteza is None:

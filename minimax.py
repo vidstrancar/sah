@@ -41,11 +41,12 @@ class Minimax:
 
     def vrednost_pozicije(self):
         '''Sešteje vrednosti figur na šahovnici.'''
+        nasprotnik = 'bel' if self.jaz == 'crn' else 'crn'
         vsota_figur = 0
         for figura in self.igra.figure[self.jaz]:
             if figura.ziv:
                 vsota_figur += figura.vrednost
-        for figura in self.igra.figure[self.igra.nasprotna_barva()]:
+        for figura in self.igra.figure[nasprotnik]:
             if figura.ziv:
                 vsota_figur -= figura.vrednost
         return vsota_figur
@@ -76,31 +77,30 @@ class Minimax:
                     # PROBLEM: KO POVLEČEMO POTEZO, SE ŠTEVILO NAŠIH TOČK NE SPREMENI, zato moramo gledati nasprotnikove
                     najboljsa_poteza = None
                     vrednost_najboljse = -Minimax.NESKONCNO
-                    for figura in self.igra.figure[self.igra.na_vrsti]:
-                        if figura.ziv:
-                            for p in list(self.igra.dovoljene_poteze_iterator(figura)):
-                                self.igra.naredi_potezo((figura.i, figura.j), p) # sploh ne predamo poteze nasprotniku, zgolj simuliramo
-                                                                     # problem nastane pri odkritem šahu ...
-                                vrednost = self.minimax(globina-1, not maksimiziramo)[1]
-                                self.igra.vrni_potezo()
-                                # print(figura, end='')
-                                # print('poteza: {}, vrednost: {}'.format(p, vrednost))
-                                if vrednost > vrednost_najboljse:
-                                    vrednost_najboljse = vrednost
-                                    najboljsa_poteza = ((figura.i, figura.j), p)
+                    for figura, poteze in self.igra.vse_poteze().items():
+                        for p in poteze:
+                            self.igra.naredi_potezo(figura, p)
+                            vrednost = self.minimax(globina-1, not maksimiziramo)[1]
+                            self.igra.vrni_potezo()
+                            # print(figura, end='')
+                            # print('poteza: {}, vrednost: {}'.format(p, vrednost))
+                            if vrednost > vrednost_najboljse:
+                                vrednost_najboljse = vrednost
+                                najboljsa_poteza = ((figura.i, figura.j), p)
                 else:
                     # Minimiziramo nasprotnika, torej maksimiziramo sebe :)
                     najboljsa_poteza = None
                     vrednost_najboljse = Minimax.NESKONCNO
-                    for figura in self.igra.figure[self.igra.na_vrsti]:
-                        if figura.ziv:
-                            for p in list(self.igra.dovoljene_poteze_iterator(figura)):
-                                self.igra.naredi_potezo((figura.i, figura.j), p) # sploh ne predamo poteze nasprotniku, zgolj simuliramo
-                                vrednost = self.minimax(globina-1, not maksimiziramo)[1]
-                                self.igra.vrni_potezo()
-                                if vrednost < vrednost_najboljse:
-                                    vrednost_najboljse  = vrednost
-                                    najboljsa_poteza = ((figura.i, figura.j), p)
+                    for figura, poteze in self.igra.vse_poteze().items():
+                        for p in poteze:
+                            self.igra.naredi_potezo(figura, p)
+                            vrednost = self.minimax(globina-1, not maksimiziramo)[1]
+                            self.igra.vrni_potezo()
+                            # print(figura, end='')
+                            # print('poteza: {}, vrednost: {}'.format(p, vrednost))
+                            if vrednost < vrednost_najboljse:
+                                vrednost_najboljse = vrednost
+                                najboljsa_poteza = ((figura.i, figura.j), p)
 
                 assert (najboljsa_poteza is not None), "minimax: izračunana poteza je None"
                 return (najboljsa_poteza, vrednost_najboljse)

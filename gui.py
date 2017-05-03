@@ -72,9 +72,9 @@ class Sahovnica():
 
 
         # Začnemo igro v načinu __ proti __
-        self.zacni_igro(Clovek(self), Clovek(self))
+        # self.zacni_igro(Clovek(self), Clovek(self))
         # self.zacni_igro(Clovek(self), Racunalnik(self, Minimax(globina)))
-        # self.zacni_igro(Racunalnik(self, Minimax(globina)), Racunalnik(self, Minimax(globina)))
+        self.zacni_igro(Racunalnik(self, Minimax(globina)), Racunalnik(self, Minimax(globina)))
 
 
 
@@ -173,16 +173,22 @@ class Sahovnica():
         else: # figuro že imamo označeno
             self.premakni_figuro(self.oznacena_figura, poteza)
 
+    def premakni_figuro_racunalnik(self, koordinati_figure, poteza):
+        '''Metodo kliče računalnik. Pretvori koordinati figure v figuro.'''
+        i, j = koordinati_figure
+        figura = self.sah.slika[i][j]
+        self.premakni_figuro(figura, poteza)
+
     def premakni_figuro(self, figura, poteza):
         '''Premakne figuro, če je poteza veljavna.'''
         print('gui prejel ukaz, naj premakne {} na {}'.format(figura, poteza))
-        veljavna = self.sah.naredi_potezo(self.oznacena_figura, poteza)
+        veljavna = self.sah.naredi_potezo(figura, poteza)
         self.oznacena_figura = None
         self.prikaz_figur()
 
-        print()
-        for vr in self.sah.slika:
-            print(vr)
+        # print()
+        # for vr in self.sah.slika:
+        #     print(vr)
 
         # predamo igro naslednjemu igralcu, če je bila poteza veljavna
         if veljavna:
@@ -194,7 +200,7 @@ class Sahovnica():
                 self.igralec_crni.igraj()
 
             # preverimo, ali je prišlo do zmage
-            # self.sah.stanje_igre()
+            self.sah.stanje_igre()
             if self.sah.zmagovalec is not None:
                 self.izpis_potez.set('Zmagal je {}i.'.format(self.sah.zmagovalec))
         else:

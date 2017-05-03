@@ -185,10 +185,10 @@ class Sah():
         '''Vrne seznam vseh potez v dani situaciji.'''
         poteze = dict()
         for figura in self.figure[self.na_vrsti]:
-            poteze_figure = list(self.dovoljene_poteze_iterator(figura))
-            poteze[figura] = poteze_figure
+            if figura.ziv:
+                poteze_figure = list(self.dovoljene_poteze_iterator(figura))
+                poteze[figura] = poteze_figure
         return poteze
-
 
 
     def kopija(self):
@@ -196,8 +196,7 @@ class Sah():
         sah = Sah()
         sah.figure = deepcopy(self.figure)
         sah.na_vrsti = self.na_vrsti
-        sah.igra = deepcopy(self.igra)
-        sah.slika = self.figure_v_sliko()
+        sah.slika = deepcopy(self.figure_v_sliko())
         return sah
 
 
@@ -236,8 +235,12 @@ class Sah():
             poteza, pojedena_figura, figura = self.igra.pop()
             i, j = figura.i, figura.j # na teh koordinatah je bila pojedena figura
             self.premakni_figuro(figura, poteza, False)
-            if pojedena_figura is not None:
-                self.premakni_figuro(pojedena_figura, (i, j), False)
+            if pojedena_figura is not None: # jo oživimo in vrnemo na ploščo
+                # self.figure[self.nasprotna_barva()].append(pojedena_figura)
+                self.slika[i][j] = pojedena_figura
+                pojedena_figura.i = i
+                pojedena_figura.j = j
+                # self.premakni_figuro(pojedena_figura, (i, j), False)
                 pojedena_figura.ziv = True
             if zamenjaj_igralca:
                 self.na_vrsti = self.nasprotna_barva()
@@ -247,28 +250,34 @@ class Sah():
         i_z, j_z = figura.i, figura.j
         i_k, j_k = poteza
         pojedena_figura = self.slika[i_k][j_k]  # lahko je tudi None
-        print('premikam {} -> {}'.format(figura, poteza))
+        if pojedena_figura is not None:
+            pojedena_figura.pojej()
+            # pojedena_figura.i = -1
+            # pojedena_figura.j = -1
+            # pojedena_figura.ziv = False
+            # self.figure[self.nasprotna_barva()].remove(pojedena_figura)
+        # print('premikam {} -> {}'.format(figura, poteza))
         if belezi_zgo:
             self.igra.append(((i_z, j_z), pojedena_figura, figura))
-        if self.slika[i_k][j_k] is not None:
-            print('figura, ki jo bomo pojedli:', self.slika[i_k][j_k], '===============')
-            self.slika[i_k][j_k].pojej()
-##            for figura in self.figure['bel']:
-##                print(figura)
-            
+            print(self.igra)
         figura.premakni((i_k, j_k))
         self.slika[i_z][j_z] = None
         self.slika[i_k][j_k] = figura
+
 
 
     def naredi_potezo(self, figura, poteza):
         '''Če je poteza veljavna, jo naredi in vrne True.'''
         veljavne_poteze_figure = list(self.dovoljene_poteze_iterator(figura))
         if poteza in veljavne_poteze_figure:
-            print('sah prejel ukaz, naj premakne {} na {}'.format(figura, poteza))
+            # print('sah prejel ukaz, naj premakne {} na {}'.format(figura, poteza))
             self.premakni_figuro(figura, poteza)
             self.na_vrsti = self.nasprotna_barva()
+            # for figura in self.figure['bel']:
+                # print(figura)
+            self.slika = self.figure_v_sliko() # zaradi polja [7][7]
             return True
+        self.slika = self.figure_v_sliko() # zaradi polja [7][7]
         return False
 
     def dovoljene_poteze_iterator(self, figura):
@@ -290,7 +299,7 @@ class Sah():
             while v_sahovnici((i, j)):
                 druga_figura = 'trdnjava' if abs(vektor[0] + vektor[1]) == 1 else 'lovec'
                 if self.slika[i][j] is not None:
-                    if self.slika[i][j].barva != kralj.barva and ((n == 1 and self.slika[i][j].vrsta == 'kralj') or \
+                    if self.slika[i][j].barva != kralj.barva and ((n == 1 and self.slika[i][j].vrsta == 'kralj') or
                                     self.slika[i][j].vrsta in ['kraljica', druga_figura]):
                         return True
                     else:
