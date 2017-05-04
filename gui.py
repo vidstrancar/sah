@@ -118,28 +118,18 @@ class Sahovnica():
     def narisi_sahovnico(self):
         '''Nariše šahovnico 8d X 8d. Desno spodaj je belo polje.'''
         x1, y1 = Sahovnica.ODMIK, Sahovnica.ODMIK  # določimo odmik
-        matrika_id = [[None for i in range(8)] for j in range(8)]
         for i in range(8):  # vrstice
             for j in range(8):  # stolpci
                 barva = "white" if (i + j) % 2 == 0 else "gray"
-                id_polja = self.plosca.create_rectangle(x1, y1, x1 + Sahovnica.VELIKOST_POLJA, y1 + Sahovnica.VELIKOST_POLJA,
+                self.plosca.create_rectangle(x1, y1, x1 + Sahovnica.VELIKOST_POLJA, y1 + Sahovnica.VELIKOST_POLJA,
                                                         fill=barva, tag=POLJE)
-                matrika_id[i][j] = id_polja
                 x1 += Sahovnica.VELIKOST_POLJA  # naslednji kvadratek v vrsti
             x1, y1 = Sahovnica.ODMIK, Sahovnica.ODMIK + Sahovnica.VELIKOST_POLJA * (i + 1)  # premaknemo se eno vrstico navzdol
-        return matrika_id
 
     def narisi_plave(self, plave_tocke):
         '''Z modro pobarva polja, na katere se označena figura lahko premakne..'''
         for poteza in plave_tocke:
-            if poteza == 'leva_rošada':
-                i = self.oznacena_figura.i
-                j = 2
-            elif poteza == 'desna_rošada':
-                i = self.oznacena_figura.i
-                j = 6
-            else:
-                i, j = poteza
+            i, j = poteza
             barva = "blue"
             x1 = Sahovnica.ODMIK + j * Sahovnica.VELIKOST_POLJA
             y1 = Sahovnica.ODMIK + i * Sahovnica.VELIKOST_POLJA
@@ -186,11 +176,7 @@ class Sahovnica():
         self.oznacena_figura = None
         self.prikaz_figur()
 
-        # print()
-        # for vr in self.sah.slika:
-        #     print(vr)
-
-        # predamo igro naslednjemu igralcu, če je bila poteza veljavna
+        # predamo potezo naslednjemu igralcu, če je bila poteza veljavna
         if veljavna:
             if self.sah.na_vrsti == 'bel':
                 self.izpis_potez.set('Na potezi je {}i.'.format(self.sah.na_vrsti))
@@ -220,12 +206,10 @@ class Sahovnica():
         self.plosca.delete(FIGURA)
         self.plosca.delete(PLAVI)
         self.narisi_plave(plave_tocke)
-        bele = self.sah.figure['bel']
-        crne = self.sah.figure['crn']
         for figura in self.sah.figure['bel'] + self.sah.figure['crn']:
             if figura.ziv:
                 foto = self.slike_figur[figura]
-                x = Sahovnica.ODMIK + (figura.j * Sahovnica.VELIKOST_POLJA) + Sahovnica.VELIKOST_POLJA / 2
+                x = Sahovnica.ODMIK + (figura.j * Sahovnica.VELIKOST_POLJA) + Sahovnica.VELIKOST_POLJA/2
                 y = Sahovnica.ODMIK + (figura.i * Sahovnica.VELIKOST_POLJA) + Sahovnica.VELIKOST_POLJA/2
                 self.plosca.create_image(x, y, image=foto, tag=FIGURA)
 

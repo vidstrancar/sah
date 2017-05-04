@@ -103,29 +103,6 @@ class Kralj(Figura):
                 if slika[self.i + i_premika][self.j + j_premika] is None or \
                                 slika[self.i + i_premika][self.j + j_premika].barva != self.barva:
                     yield ((self.i + i_premika, self.j + j_premika))
-        # možnost rošade
-        # if not self.premaknjen:
-        #     # leva rošada
-        #     if not slika[self.i][0].premaknjen:
-        #         leva = True
-        #         # preverimo, če so polja vmes prosta
-        #         for j in [3, 2, 1]:
-        #             if slika[self.i][j] is not None:
-        #                leva = False
-        #                break
-        #         if leva:
-        #             yield('leva_rošada')
-        #     # desna rošada
-        #     if not (slika[self.i][7].premaknjen):
-        #         # print('desnaaaa')
-        #         desna = True
-        #         for j in [5, 6]:
-        #             if slika[self.i][j] is not None:
-        #                 desna = False
-        #                 break
-        #         if desna:
-        #             yield('desna_rošada')
-
 
     def premakni(self, koncna_lokacija):
         Figura.premakni(self, koncna_lokacija)
@@ -177,7 +154,6 @@ class Sah():
                                Trdnjava((0, 0), 'crn'), Trdnjava((0, 7), 'crn'),
                                Kraljica((0, 3), 'crn'),
                                Kralj((0, 4), 'crn')]}
-
         self.slika = self.figure_v_sliko()
 
 
@@ -208,7 +184,6 @@ class Sah():
                 return None
         self.zmagovalec = self.nasprotna_barva()
         return self.zmagovalec
-
 
     def vrni_kralja_na_vrsti(self):
         '''Vrne figuro nasprotnega kralja.'''
