@@ -16,7 +16,7 @@ class Racunalnik():
         for vr1, vr2 in zip(kopija.slika, self.gui.sah.slika):  # Prepričamo se, da je kopija zvesta originalu
             for figura1, figura2 in zip(vr1, vr2):
                 if str(figura1) != str(figura2):
-                    print('figura {} ni enaka {}'.format(figura1, figura2))
+                    print('figura {} ni enaka {}'.format(figura1, figura2), 'problem je nastal v vrstici {}'.format(vr1))
                 assert str(figura1) == str(figura2)
         self.mislec = threading.Thread(
             target=lambda: self.algoritem.izracunaj_potezo(kopija))

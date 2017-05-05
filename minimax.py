@@ -8,8 +8,8 @@ class Minimax:
     def __init__(self, globina):
         self.globina = globina
         self.prekinitev = False
-        self.igra = None # dobimo kasneje
-        self.jaz = None # katerega igralca igramo (dobimo kasneje)
+        self.igra = None # Dobimo naknadno
+        self.jaz = None
         self.poteza = None
 
     def prekini(self):
@@ -52,7 +52,6 @@ class Minimax:
         return vsota_figur
 
     def minimax(self, globina, maksimiziramo):
-        # print(self.igra.figure)
         '''Glavna metoda minimax.'''
         if self.prekinitev:
             logging.debug("Minimax prekinja, globina = {0}".format(globina))
@@ -73,8 +72,6 @@ class Minimax:
             else:
                 # Naredimo eno stopnjo minimax
                 if maksimiziramo:
-                    # Maksimiziramo, kar je enako, kot da minimiziramo nasprotnika
-                    # PROBLEM: KO POVLEČEMO POTEZO, SE ŠTEVILO NAŠIH TOČK NE SPREMENI, zato moramo gledati nasprotnikove
                     najboljsa_poteza = None
                     vrednost_najboljse = -Minimax.NESKONCNO
                     for figura, poteze in self.igra.vse_poteze().items():
@@ -82,13 +79,11 @@ class Minimax:
                             self.igra.naredi_potezo(figura, p)
                             vrednost = self.minimax(globina-1, not maksimiziramo)[1]
                             self.igra.vrni_potezo()
-                            # print(figura, end='')
-                            # print('poteza: {}, vrednost: {}'.format(p, vrednost))
+                            # print('{} -> {}, vrednost: {}'.format(figura, p, vrednost))
                             if vrednost > vrednost_najboljse:
                                 vrednost_najboljse = vrednost
                                 najboljsa_poteza = ((figura.i, figura.j), p)
                 else:
-                    # Minimiziramo nasprotnika, torej maksimiziramo sebe :)
                     najboljsa_poteza = None
                     vrednost_najboljse = Minimax.NESKONCNO
                     for figura, poteze in self.igra.vse_poteze().items():
@@ -96,8 +91,7 @@ class Minimax:
                             self.igra.naredi_potezo(figura, p)
                             vrednost = self.minimax(globina-1, not maksimiziramo)[1]
                             self.igra.vrni_potezo()
-                            # print(figura, end='')
-                            # print('poteza: {}, vrednost: {}'.format(p, vrednost))
+                            # print('{} -> {}, vrednost: {}'.format(figura, p, vrednost))
                             if vrednost < vrednost_najboljse:
                                 vrednost_najboljse = vrednost
                                 najboljsa_poteza = ((figura.i, figura.j), p)

@@ -157,10 +157,10 @@ class Sahovnica():
         i, j = poteza
         if self.oznacena_figura is None:
             if (self.sah.slika[i][j] != None) and (self.sah.na_vrsti == self.sah.slika[i][j].barva):
-                self.oznacena_figura = self.sah.slika[i][j] # označimo figuro
+                self.oznacena_figura = self.sah.slika[i][j] # Označimo figuro
                 self.dovoljene_poteze = list(self.sah.dovoljene_poteze_iterator(self.oznacena_figura))
                 self.prikaz_figur(plave_tocke = self.dovoljene_poteze) # pobarvamo dovoljena polja
-        else: # figuro že imamo označeno
+        else: # Figuro že imamo označeno
             self.premakni_figuro(self.oznacena_figura, poteza)
 
     def premakni_figuro_racunalnik(self, koordinati_figure, poteza):
@@ -176,7 +176,7 @@ class Sahovnica():
         self.oznacena_figura = None
         self.prikaz_figur()
 
-        # predamo potezo naslednjemu igralcu, če je bila poteza veljavna
+        # Predamo potezo naslednjemu igralcu, če je bila poteza veljavna
         if veljavna:
             if self.sah.na_vrsti == 'bel':
                 self.izpis_potez.set('Na potezi je {}i.'.format(self.sah.na_vrsti))
@@ -185,7 +185,7 @@ class Sahovnica():
                 self.izpis_potez.set('Na potezi je {}i.'.format(self.sah.na_vrsti))
                 self.igralec_crni.igraj()
 
-            # preverimo, ali je prišlo do zmage
+            # Preverimo, ali je prišlo do zmage
             self.sah.stanje_igre()
             if self.sah.zmagovalec is not None:
                 self.izpis_potez.set('Zmagal je {}i.'.format(self.sah.zmagovalec))
