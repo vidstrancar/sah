@@ -15,7 +15,7 @@ from clovek import *
 from racunalnik import *
 from minimax import *
 
-MINIMAX_GLOBINA = 1
+MINIMAX_GLOBINA = 2
 
 
 class Sahovnica():

@@ -21,7 +21,7 @@ class Minimax:
         # To metodo pokličemo iz vzporednega vlakna.
         self.igra = igra
         self.prekinitev = False # Glavno vlakno bo to nastavilo na True, če moramo nehati
-        self.jaz = self.igra.na_vrsti
+        self.jaz = 'bel' if self.igra.na_vrsti == 'bel' else 'crn'
         self.nasprotnik = self.igra.nasprotna_barva()
         self.poteza = None # Sem napišemo potezo, ki jo najedmo
         # Poženemo minimax
@@ -76,10 +76,12 @@ class Minimax:
                     vrednost_najboljse = -Minimax.NESKONCNO
                     for figura, poteze in self.igra.vse_poteze().items():
                         for p in poteze:
-                            self.igra.naredi_potezo(figura, p)
+                            self.igra.premakni_figuro(figura, p)
+                            self.igra.na_vrsti = self.igra.nasprotna_barva()
                             vrednost = self.minimax(globina-1, not maksimiziramo)[1]
                             self.igra.vrni_potezo()
-                            # print('{} -> {}, vrednost: {}'.format(figura, p, vrednost))
+                            self.igra.na_vrsti = self.igra.nasprotna_barva()
+                            print('{} -> {}, vrednost: {}'.format(figura, p, vrednost))
                             if vrednost > vrednost_najboljse:
                                 vrednost_najboljse = vrednost
                                 najboljsa_poteza = ((figura.i, figura.j), p)
@@ -88,10 +90,12 @@ class Minimax:
                     vrednost_najboljse = Minimax.NESKONCNO
                     for figura, poteze in self.igra.vse_poteze().items():
                         for p in poteze:
-                            self.igra.naredi_potezo(figura, p)
+                            self.igra.premakni_figuro(figura, p)
+                            self.igra.na_vrsti = self.igra.nasprotna_barva()
                             vrednost = self.minimax(globina-1, not maksimiziramo)[1]
                             self.igra.vrni_potezo()
-                            # print('{} -> {}, vrednost: {}'.format(figura, p, vrednost))
+                            self.igra.na_vrsti = self.igra.nasprotna_barva()
+                            print('{} -> {}, vrednost: {}'.format(figura, p, vrednost))
                             if vrednost < vrednost_najboljse:
                                 vrednost_najboljse = vrednost
                                 najboljsa_poteza = ((figura.i, figura.j), p)
@@ -101,7 +105,6 @@ class Minimax:
 
         else:
             assert False, "minimax: nedefinirano stanje igre"
-
 
 
 

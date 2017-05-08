@@ -43,6 +43,7 @@ class Figura:
     def __str__(self):
         return '{1} {0}, na ({2}, {3})'.format(self.vrsta, self.barva, self.i, self.j)
 
+
 class Kraljica(Figura):
     def __init__(self, polozaj, barva):
         Figura.__init__(self, polozaj, barva)
@@ -168,6 +169,7 @@ class Sah():
         sah.figure = deepcopy(self.figure)
         sah.na_vrsti = self.na_vrsti
         sah.slika = deepcopy(self.figure_v_sliko())
+        sah.igra = deepcopy(self.igra)
         return sah
 
     def stanje_igre(self):
@@ -198,46 +200,53 @@ class Sah():
                 slika[figura.i][figura.j] = figura
         return slika
 
-    def vrni_potezo(self, zamenjaj_igralca=True):
+    def vrni_potezo(self):
         '''Povrne situacijo pred eno potezo.'''
         if len(self.igra) > 0:
-            poteza, pojedena_figura, figura = self.igra.pop()
-            i, j = figura.i, figura.j # Na teh koordinatah je bila pojedena figura
-            self.premakni_figuro(figura, poteza, False)
-            if pojedena_figura is not None: # Jo oživimo in vrnemo na ploščo
-                # self.figure[self.nasprotna_barva()].append(pojedena_figura)
-                pojedena_figura.premakni((i, j))
-                self.slika[i][j] = pojedena_figura # Matriko popravimo ročno
+            (i_z, j_z), (i_k, j_k), figura, pojedena_figura = self.igra.pop()
+            try:
+                self.slika[i_k][j_k] == figura
+            except:
+                raise Exception('neskladje')
+            # Na začetni koordinati postavimo figuro
+            figura.premakni((i_z, j_z))
+            if pojedena_figura is not None: # Oživimo figuro
+                pojedena_figura.premakni((i_k, j_k))
                 pojedena_figura.ziv = True
-            if zamenjaj_igralca:
-                self.na_vrsti = self.nasprotna_barva()
+            # Spremenimo stanje v matriki
+            self.slika[i_z][j_z] = figura
+            self.slika[i_k][j_k] = pojedena_figura
+            # Igralcev nič ne spreminjamo
 
     def premakni_figuro(self, figura, poteza, belezi_zgo=True):
-        '''Premakne figuro, spremeni njena atributa i in j. Zabeleži v zgodovino igre.'''
+        '''Premakne figuro. Zabeleži v zgodovino igre.'''
         i_z, j_z = figura.i, figura.j
         i_k, j_k = poteza
+        # Premaknemo figuro
+        figura.premakni((i_k, j_k)) # Spremeni ji koordinate na (i_k, j_k)
+        # Pogledamo, če smo ob tem pojedli kakšno figuro
         pojedena_figura = self.slika[i_k][j_k]  # Lahko je tudi None
         if pojedena_figura is not None:
-            self.slika[pojedena_figura.i][pojedena_figura.j] = None
-            pojedena_figura.pojej()
-            # Problem se pojavi, ko vzpostavljamo figure in figuro z [-1][-1] naselimo na mesto [7][7], morda takrat,
-            # ko pretvarjamo iz figur v slike in se nam kakšna izmuzne, da je živa, čeprav ni
-            # self.figure[self.nasprotna_barva()].remove(pojedena_figura)
-        if belezi_zgo:
-            self.igra.append(((i_z, j_z), pojedena_figura, figura))
-        # print('premikam {} -> {}'.format(figura, poteza))
-        figura.premakni((i_k, j_k))
+            pojedena_figura.pojej() # Spremeni ji koordinate na (-1, -1), figura.ziv = False
+        # Spremenimo stanje v matriki
+        self.slika[i_z][j_z] = None
         self.slika[i_k][j_k] = figura
-        self.slika[i_z][j_z] = None # Pojedena figura bi na [-1][-1], to je na [7][7] pustila None !!! :)
+        # Shranimo v zgodovino igre
+        self.igra.append(((i_z, j_z), (i_k, j_k), figura, pojedena_figura))
 
     def naredi_potezo(self, figura, poteza):
         '''Če je poteza veljavna, jo naredi in vrne True.'''
-        veljavne_poteze_figure = self.vse_poteze()[figura] ##list(self.dovoljene_poteze_iterator(figura))
+        i_z, j_z = figura.i, figura.j
+        try:
+            veljavne_poteze_figure = list(self.dovoljene_poteze_iterator(figura)) # self.vse_poteze()[figura] ##list(self.dovoljene_poteze_iterator(figura))
+        except:
+            raise Exception('označili smo neveljavno figuro {}'.format(figura))
         if poteza in veljavne_poteze_figure:
             print('sah prejel ukaz, naj premakne {} na {}'.format(figura, poteza))
             self.premakni_figuro(figura, poteza)
             self.na_vrsti = self.nasprotna_barva()
             self.slika = self.figure_v_sliko() # Minimax brez tega ne deluje, čeprav bi moral
+            assert self.slika[i_z][j_z] == None
             return True
         self.slika = self.figure_v_sliko() # Minimax brez tega ne deluje, čeprav bi moral
         return False
@@ -257,7 +266,7 @@ class Sah():
             self.premakni_figuro(figura, poteza) # Simuliramo
             if not self.bo_sah_po_potezi():
                 yield poteza
-            self.vrni_potezo(False) # Vrnemo v prvotno stanje
+            self.vrni_potezo() # Vrnemo v prvotno stanje
 
     def bo_sah_po_potezi(self):
         '''Vrne True, če bo po potezi šah.'''
