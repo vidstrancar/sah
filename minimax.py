@@ -21,8 +21,7 @@ class Minimax:
         # To metodo pokličemo iz vzporednega vlakna.
         self.igra = igra
         self.prekinitev = False # Glavno vlakno bo to nastavilo na True, če moramo nehati
-        self.jaz = 'bel' if self.igra.na_vrsti == 'bel' else 'crn'
-        self.nasprotnik = self.igra.nasprotna_barva()
+        self.jaz = 'bel' if self.igra.na_vrsti == 'bel' else 'crn' # Da ne poveženo dveh spremenljivk # PROBLEM # 4
         self.poteza = None # Sem napišemo potezo, ki jo najedmo
         # Poženemo minimax
         (poteza, vrednost) = self.minimax(self.globina, True)
@@ -41,7 +40,7 @@ class Minimax:
 
     def vrednost_pozicije(self):
         '''Sešteje vrednosti figur na šahovnici.'''
-        nasprotnik = 'bel' if self.jaz == 'crn' else 'crn'
+        nasprotnik = 'bel' if self.jaz == 'crn' else 'crn' # PROBLEM # 4: cenilka ne deluje
         vsota_figur = 0
         for figura in self.igra.figure[self.jaz]:
             if figura.ziv:
@@ -74,10 +73,13 @@ class Minimax:
                 if maksimiziramo:
                     najboljsa_poteza = None
                     vrednost_najboljse = -Minimax.NESKONCNO
+                    # for figura in set(self.igra.figure[self.igra.na_vrsti]):
+                    #     if figura.ziv and figura is not None:
+                    #         poteze = set((self.igra.dovoljene_poteze_iterator(figura)))
                     for figura, poteze in self.igra.vse_poteze().items():
                         for p in poteze:
                             self.igra.premakni_figuro(figura, p)
-                            self.igra.na_vrsti = self.igra.nasprotna_barva()
+                            self.igra.na_vrsti = self.igra.nasprotna_barva() # PROBLEM # 4
                             vrednost = self.minimax(globina-1, not maksimiziramo)[1]
                             self.igra.vrni_potezo()
                             self.igra.na_vrsti = self.igra.nasprotna_barva()
@@ -89,6 +91,9 @@ class Minimax:
                     najboljsa_poteza = None
                     vrednost_najboljse = Minimax.NESKONCNO
                     for figura, poteze in self.igra.vse_poteze().items():
+                    # for figura in set(self.igra.figure[self.igra.na_vrsti]):
+                    #     if figura.ziv and figura is not None:
+                    #         poteze = set(self.igra.dovoljene_poteze_iterator(figura))
                         for p in poteze:
                             self.igra.premakni_figuro(figura, p)
                             self.igra.na_vrsti = self.igra.nasprotna_barva()

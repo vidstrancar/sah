@@ -148,6 +148,8 @@ class Sah():
         self.na_vrsti = 'bel'
         self.zmagovalec = None
 
+
+
         self.figure = {'bel': [Kmet((6, i), 'bel') for i in range(8)] +
                               [Trdnjava((7, 0), 'bel'), Trdnjava((7, 7), 'bel'),
                                Konj((7, 1), 'bel'), Konj((7, 6), 'bel'),
@@ -214,6 +216,7 @@ class Sah():
                 pojedena_figura.premakni((i_k, j_k))
                 pojedena_figura.ziv = True
             # Spremenimo stanje v matriki
+            # self.figure_v_sliko() # PROBLEMO # 2: TA FUNKCIJA NE DELUJE; MORAMO POPRAVITI ROČNO
             self.slika[i_z][j_z] = figura
             self.slika[i_k][j_k] = pojedena_figura
             # Igralcev nič ne spreminjamo
@@ -228,6 +231,7 @@ class Sah():
         pojedena_figura = self.slika[i_k][j_k]  # Lahko je tudi None
         if pojedena_figura is not None:
             pojedena_figura.pojej() # Spremeni ji koordinate na (-1, -1), figura.ziv = False
+            pojedena_figura.ziv = False
         # Spremenimo stanje v matriki
         self.slika[i_z][j_z] = None
         self.slika[i_k][j_k] = figura
@@ -238,25 +242,26 @@ class Sah():
         '''Če je poteza veljavna, jo naredi in vrne True.'''
         i_z, j_z = figura.i, figura.j
         try:
-            veljavne_poteze_figure = list(self.dovoljene_poteze_iterator(figura)) # self.vse_poteze()[figura] ##list(self.dovoljene_poteze_iterator(figura))
+            veljavne_poteze_figure = self.vse_poteze()[figura] # list(self.dovoljene_poteze_iterator(figura))
         except:
             raise Exception('označili smo neveljavno figuro {}'.format(figura))
         if poteza in veljavne_poteze_figure:
             print('sah prejel ukaz, naj premakne {} na {}'.format(figura, poteza))
             self.premakni_figuro(figura, poteza)
             self.na_vrsti = self.nasprotna_barva()
-            self.slika = self.figure_v_sliko() # Minimax brez tega ne deluje, čeprav bi moral
+            # self.slika = self.figure_v_sliko() # PROBLEM # 3: Minimax brez tega ne deluje, čeprav bi moral
+            self.vse_poteze() # Ponastavimo vse možne poteze
             assert self.slika[i_z][j_z] == None
             return True
-        self.slika = self.figure_v_sliko() # Minimax brez tega ne deluje, čeprav bi moral
+        # self.slika = self.figure_v_sliko() # PROBLEM # 3: Minimax brez tega ne deluje, čeprav bi moral
         return False
 
     def vse_poteze(self):
         '''Vrne seznam vseh veljavnih potez v dani situaciji.'''
         poteze = dict()
-        for figura in self.figure[self.na_vrsti]:
+        for figura in set(self.figure[self.na_vrsti]):
             if figura.ziv:
-                poteze_figure = list(self.dovoljene_poteze_iterator(figura))
+                poteze_figure = set(self.dovoljene_poteze_iterator(figura))
                 poteze[figura] = poteze_figure
         return poteze
 

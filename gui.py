@@ -15,7 +15,7 @@ from clovek import *
 from racunalnik import *
 from minimax import *
 
-MINIMAX_GLOBINA = 2
+MINIMAX_GLOBINA = 1 # PROBLEM # 1: minimax dela za globino 2, za 1 pa ne...
 
 
 class Sahovnica():
@@ -75,6 +75,7 @@ class Sahovnica():
         # self.zacni_igro(Clovek(self), Clovek(self))
         # self.zacni_igro(Clovek(self), Racunalnik(self, Minimax(globina)))
         self.zacni_igro(Racunalnik(self, Minimax(globina)), Racunalnik(self, Minimax(globina)))
+        # self.zacni_igro(Racunalnik(self, Minimax(globina)), Clovek(self))
 
 
 
