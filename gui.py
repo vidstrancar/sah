@@ -72,9 +72,9 @@ class Sahovnica():
 
 
         # Začnemo igro v načinu __ proti __
-        # self.zacni_igro(Clovek(self), Clovek(self))
+        self.zacni_igro(Clovek(self), Clovek(self))
         # self.zacni_igro(Clovek(self), Racunalnik(self, Minimax(globina)))
-        self.zacni_igro(Racunalnik(self, Minimax(globina)), Racunalnik(self, Minimax(globina)))
+        # self.zacni_igro(Racunalnik(self, Minimax(globina)), Racunalnik(self, Minimax(globina)))
         # self.zacni_igro(Racunalnik(self, Minimax(globina)), Clovek(self))
 
 
@@ -143,6 +143,7 @@ class Sahovnica():
             i = int((event.y - Sahovnica.ODMIK) // Sahovnica.VELIKOST_POLJA) # vrstica
             j = int((event.x - Sahovnica.ODMIK) // Sahovnica.VELIKOST_POLJA) # stolpec
             poteza = (i, j)
+            logging.debug("Klik na polje {0}".format((i,j)))
             if sah2.v_sahovnici(poteza):
                 if self.sah.na_vrsti == 'bel':
                     self.igralec_beli.klik(poteza)
@@ -153,55 +154,51 @@ class Sahovnica():
                     pass
             else:
                 logging.debug("klik izven ploše")
+        else:
+            logging.debug("Klik v stanju igre {0}".format(zmagovalec))
 
     def razberi_potezo(self, poteza):
         '''Prebere prvi in drugi klik.'''
         i, j = poteza
         if self.oznacena_figura is None:
-            if (self.sah.slika[i][j] != None) and (self.sah.na_vrsti == self.sah.slika[i][j].barva):
-                self.oznacena_figura = self.sah.slika[i][j] # Označimo figuro
-                self.dovoljene_poteze = list(self.sah.dovoljene_poteze_iterator(self.oznacena_figura))
-                self.prikaz_figur(plave_tocke = self.dovoljene_poteze) # pobarvamo dovoljena polja
+            slika = self.sah.slika()
+            if (slika[i][j] != None) and (self.sah.na_vrsti == slika[i][j].barva):
+                self.oznacena_figura = slika[i][j] # Označimo figuro
+                logging.debug("označili smo figuro {0}".format(self.oznacena_figura))
+                self.prikaz_figur(plave_tocke = self.sah.poteze_figure(self.oznacena_figura)) # pobarvamo dovoljena polja
         else: # Figuro že imamo označeno
             self.premakni_figuro(self.oznacena_figura, poteza)
 
-    def premakni_figuro_racunalnik(self, koordinati_figure, poteza):
-        '''Metodo kliče računalnik. Pretvori koordinati figure v figuro.'''
-        i, j = koordinati_figure
-        figura = self.sah.slika[i][j]
-        self.premakni_figuro(figura, poteza)
-
     def premakni_figuro(self, figura, poteza):
         '''Premakne figuro, če je poteza veljavna.'''
-        print('gui prejel ukaz, naj premakne {} na {}'.format(figura, poteza))
+        logging.debug('gui prejel ukaz, naj premakne {} na {}'.format(figura, poteza))
         veljavna = self.sah.naredi_potezo(figura, poteza)
+        # V vsakem primeru figuro odznacimo
         self.oznacena_figura = None
         self.prikaz_figur()
 
-        # Predamo potezo naslednjemu igralcu, če je bila poteza veljavna
-        if veljavna:
+        # Preverimo, ali je prišlo do zmage
+        zmagovalec = self.sah.stanje_igre()
+        if zmagovalec is not None:
+            self.izpis_potez.set('Zmagal je {}i.'.format(zmagovalec))
+        else:
+            # igro nadaljujemo
             if self.sah.na_vrsti == 'bel':
                 self.izpis_potez.set('Na potezi je {}i.'.format(self.sah.na_vrsti))
                 self.igralec_beli.igraj()
             elif self.sah.na_vrsti == 'crn':
                 self.izpis_potez.set('Na potezi je {}i.'.format(self.sah.na_vrsti))
                 self.igralec_crni.igraj()
-
-            # Preverimo, ali je prišlo do zmage
-            zmagovalec = self.sah.stanje_igre()
-            if zmagovalec is not None:
-                self.izpis_potez.set('Zmagal je {}i.'.format(zmagovalec))
-        else:
-            self.izpis_potez.set('Neveljavna poteza. Na potezi je {}i.'.format(self.sah.na_vrsti))
-
+            else:
+                assert False
 
     def vzpostavi_slike_figur(self):
         '''Poveže vsako figuro z njeno sliko.'''
         self.slike_figur = dict()
-        for figura in (self.sah.figure['bel'] + self.sah.figure['crn']):
-            datoteka = os.path.join(os.path.dirname(__file__), 'slike_figur', '{}_{}i.gif'.format(figura.vrsta, figura.barva))
-            foto = tk.PhotoImage(file=datoteka)
-            self.slike_figur[figura] = foto
+        for barva in ('bel', 'crn'):
+            for vrsta in (sah2.KRALJ, sah2.KRALJICA, sah2.TRDNJAVA, sah2.LOVEC, sah2.KONJ, sah2.KMET):
+                datoteka = os.path.join(os.path.dirname(__file__), 'slike_figur', '{}_{}i.gif'.format(vrsta, barva))
+                self.slike_figur[(barva, vrsta)] = tk.PhotoImage(file=datoteka)
 
     def prikaz_figur(self, plave_tocke=[]):
         '''Pobriše vse figure in nariše nove.'''
@@ -210,7 +207,7 @@ class Sahovnica():
         self.narisi_plave(plave_tocke)
         for figura in self.sah.figure['bel'] + self.sah.figure['crn']:
             if figura.ziv:
-                foto = self.slike_figur[figura]
+                foto = self.slike_figur[(figura.barva, figura.vrsta)]
                 x = Sahovnica.ODMIK + (figura.j * Sahovnica.VELIKOST_POLJA) + Sahovnica.VELIKOST_POLJA/2
                 y = Sahovnica.ODMIK + (figura.i * Sahovnica.VELIKOST_POLJA) + Sahovnica.VELIKOST_POLJA/2
                 self.plosca.create_image(x, y, image=foto, tag=FIGURA)

@@ -36,7 +36,6 @@ class Minimax:
     ZMAGA = 10000000
     NESKONCNO = ZMAGA + 1
 
-
     def vrednost_pozicije(self):
         '''Sešteje vrednosti figur na šahovnici.'''
         nasprotnik = 'bel' if self.jaz == 'crn' else 'crn' # PROBLEM # 4: cenilka ne deluje
@@ -72,37 +71,23 @@ class Minimax:
                 if maksimiziramo:
                     najboljsa_poteza = None
                     vrednost_najboljse = -Minimax.NESKONCNO
-                    # for figura in set(self.igra.figure[self.igra.na_vrsti]):
-                    #     if figura.ziv and figura is not None:
-                    #         poteze = set((self.igra.dovoljene_poteze_iterator(figura)))
-                    for figura, poteze in self.igra.vse_poteze().items():
-                        for p in poteze:
-                            self.igra.premakni_figuro(figura, p)
-                            self.igra.na_vrsti = self.igra.nasprotna_barva() # PROBLEM # 4
-                            vrednost = self.minimax(globina-1, not maksimiziramo)[1]
-                            self.igra.vrni_potezo()
-                            self.igra.na_vrsti = self.igra.nasprotna_barva()
-                            print('{} -> {}, vrednost: {}'.format(figura, p, vrednost))
-                            if vrednost > vrednost_najboljse:
-                                vrednost_najboljse = vrednost
-                                najboljsa_poteza = ((figura.i, figura.j), p)
+                    for figura, poteza in self.igra.vse_poteze():
+                        self.igra.naredi_potezo(figura, poteza)
+                        vrednost = self.minimax(globina-1, not maksimiziramo)[1]
+                        self.igra.vrni_potezo()
+                        if vrednost > vrednost_najboljse:
+                            vrednost_najboljse = vrednost
+                            najboljsa_poteza = (figura, poteza)
                 else:
                     najboljsa_poteza = None
                     vrednost_najboljse = Minimax.NESKONCNO
-                    for figura, poteze in self.igra.vse_poteze().items():
-                    # for figura in set(self.igra.figure[self.igra.na_vrsti]):
-                    #     if figura.ziv and figura is not None:
-                    #         poteze = set(self.igra.dovoljene_poteze_iterator(figura))
-                        for p in poteze:
-                            self.igra.premakni_figuro(figura, p)
-                            self.igra.na_vrsti = self.igra.nasprotna_barva()
-                            vrednost = self.minimax(globina-1, not maksimiziramo)[1]
-                            self.igra.vrni_potezo()
-                            self.igra.na_vrsti = self.igra.nasprotna_barva()
-                            print('{} -> {}, vrednost: {}'.format(figura, p, vrednost))
-                            if vrednost < vrednost_najboljse:
-                                vrednost_najboljse = vrednost
-                                najboljsa_poteza = ((figura.i, figura.j), p)
+                    for figura, poteza in self.igra.vse_poteze():
+                        self.igra.naredi_potezo(figura, poteza)
+                        vrednost = self.minimax(globina-1, not maksimiziramo)[1]
+                        self.igra.vrni_potezo()
+                        if vrednost < vrednost_najboljse:
+                            vrednost_najboljse = vrednost
+                            najboljsa_poteza = (figura, poteza)
 
                 assert (najboljsa_poteza is not None), "minimax: izračunana poteza je None"
                 return (najboljsa_poteza, vrednost_najboljse)
