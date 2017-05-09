@@ -78,7 +78,16 @@ class Kralj(Figura):
 
     def dovoljeni_premiki(self, igra, i, j):
         '''Premiki kralja.'''
-        # XXX tu bi morali gledati rošade
+        # Kratka rošada
+        vrsta = 0 if igra.na_vrsti == CRNI else 7
+        rosada_kratka = igra.rosada_beli_kratka if igra.na_vrsti == BELI else igra.rosada_crni_kratka
+        if rosada_kratka and igra.plosca[vrsta][5] == PRAZNO and igra.plosca[vrsta][6] == PRAZNO:
+            yield ((vrsta, 6))
+        # Dolga rošada
+        rosada_dolga = igra.rosada_beli_dolga if igra.na_vrsti == BELI else igra.rosada_crni_dolga
+        if rosada_dolga and igra.plosca[vrsta][3] == PRAZNO and igra.plosca[vrsta][2] == PRAZNO:
+            yield ((vrsta, 2))
+        # Ostali premiki kralja
         for i_korak, j_korak in self.koraki:
             if v_sahovnici((i + i_korak, j + j_korak)):
                 if (igra.plosca[i + i_korak][j + j_korak] == PRAZNO or
@@ -207,12 +216,36 @@ class Sah():
         '''Premakni figuro iz polje1 na polje2. Spremeni, kdo je na potezi.'''
         (i1, j1) = polje1
         (i2, j2) = polje2
-        # XXX ali je to rošada?
-        # XXX ali je to en passant?
-        # XXX ali je to promocija? (recimo, da vedno promoviramo v kraljico)
-        # XXX ali je treba kako rosado nastaviti na False?
+        # XXX Ali je to en passant?
+        # Ali je to rošada? V tem primeru ročno premaknemo še trdnjavo.
+        osnovna_vrsta = 0 if self.na_vrsti == CRNI else 7
+        if self.plosca[i1][j1].vrsta == KRALJ and abs(j2 - j1) == 2:
+            if j2 == 2:
+                (self.plosca[osnovna_vrsta][0], self.plosca[osnovna_vrsta][3]) = (PRAZNO, self.plosca[osnovna_vrsta][0])
+            elif j2 == 6:
+                (self.plosca[osnovna_vrsta][7], self.plosca[osnovna_vrsta][5]) = (PRAZNO, self.plosca[osnovna_vrsta][7])
+        # Ali je to promocija? (Promocija vedno v kraljico)
+        zadnja_vrsta = 0 if self.na_vrsti == BELI else 7
+        if self.plosca[i1][j1].vrsta == KMET and i2 == zadnja_vrsta:
+            (self.plosca[i1][j1], self.plosca[i2][j2]) = (PRAZNO, Kraljica(self.na_vrsti))
+        else:
+            (self.plosca[i1][j1], self.plosca[i2][j2]) = (PRAZNO, self.plosca[i1][j1])
         # XXX ali je treba omogociti kak en passant?
-        (self.plosca[i1][j1], self.plosca[i2][j2]) = (PRAZNO, self.plosca[i1][j1])
+        # Ali je treba kako rosado nastaviti na False?
+        # A) Premikamo tope
+        if (i1, j1) == (7, 0):
+            self.rosada_beli_dolga = False
+        elif (i1, j1) == (7, 7):
+            self.rosada_beli_kratka = False
+        elif (i1, j1) == (0, 0):
+            self.rosada_crni_dolga = False
+        elif (i1, j1) == (0, 7):
+            self.rosada_crni_kratka = False
+        # B) Premikamo kralja
+        if (i1, j1) == (7, 4):
+            (self.rosada_beli_dolga, self.rosada_beli_kratka) = (False, False)
+        elif (i1, j1) == (0, 4):
+            (self.rosada_crni_dolga, self.rosada_crni_kratka) = (False, False)
         self.na_vrsti = self.nasprotna_barva()
 
     def naredi_potezo(self, poteza):
