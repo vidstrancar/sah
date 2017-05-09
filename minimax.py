@@ -1,5 +1,5 @@
 import logging
-from sah2 import Figura
+import sah2
 
 class Minimax:
     # Objekt, ki hrani stanje igre in algoritma, nima pa dostopa do GUI,
@@ -40,12 +40,14 @@ class Minimax:
         '''Sešteje vrednosti figur na šahovnici.'''
         nasprotnik = 'bel' if self.jaz == 'crn' else 'crn' # PROBLEM # 4: cenilka ne deluje
         vsota_figur = 0
-        for figura in self.igra.figure[self.jaz]:
-            if figura.ziv:
-                vsota_figur += figura.vrednost
-        for figura in self.igra.figure[nasprotnik]:
-            if figura.ziv:
-                vsota_figur -= figura.vrednost
+        for i in range(8):
+            for j in range(8):
+                figura = self.igra.plosca[i][j]
+                if figura != sah2.PRAZNO:
+                    if figura.barva == self.jaz:
+                        vsota_figur += figura.vrednost
+                    else:
+                        vsota_figur -= figura.vrednost
         return vsota_figur
 
     def minimax(self, globina, maksimiziramo):
@@ -71,23 +73,23 @@ class Minimax:
                 if maksimiziramo:
                     najboljsa_poteza = None
                     vrednost_najboljse = -Minimax.NESKONCNO
-                    for figura, poteza in self.igra.vse_poteze():
-                        self.igra.naredi_potezo(figura, poteza)
+                    for poteza in self.igra.vse_poteze():
+                        self.igra.naredi_potezo(poteza)
                         vrednost = self.minimax(globina-1, not maksimiziramo)[1]
                         self.igra.vrni_potezo()
                         if vrednost > vrednost_najboljse:
                             vrednost_najboljse = vrednost
-                            najboljsa_poteza = (figura, poteza)
+                            najboljsa_poteza = poteza
                 else:
                     najboljsa_poteza = None
                     vrednost_najboljse = Minimax.NESKONCNO
-                    for figura, poteza in self.igra.vse_poteze():
-                        self.igra.naredi_potezo(figura, poteza)
+                    for poteza in self.igra.vse_poteze():
+                        self.igra.naredi_potezo(poteza)
                         vrednost = self.minimax(globina-1, not maksimiziramo)[1]
                         self.igra.vrni_potezo()
                         if vrednost < vrednost_najboljse:
                             vrednost_najboljse = vrednost
-                            najboljsa_poteza = (figura, poteza)
+                            najboljsa_poteza = poteza
 
                 assert (najboljsa_poteza is not None), "minimax: izračunana poteza je None"
                 return (najboljsa_poteza, vrednost_najboljse)
