@@ -38,7 +38,6 @@ class Minimax:
 
     def vrednost_pozicije(self):
         '''Sešteje vrednosti figur na šahovnici.'''
-        nasprotnik = 'bel' if self.jaz == 'crn' else 'crn' # PROBLEM # 4: cenilka ne deluje
         vsota_figur = 0
         for i in range(8):
             for j in range(8):
@@ -48,7 +47,10 @@ class Minimax:
                         vsota_figur += figura.vrednost
                     else:
                         vsota_figur -= figura.vrednost
-        return vsota_figur
+        stevilo_potez = 0.1 * len(tuple(self.igra.vse_poteze()))
+        if self.igra.na_vrsti != self.jaz:
+            stevilo_potez = -stevilo_potez
+        return vsota_figur + stevilo_potez
 
     def minimax(self, globina, maksimiziramo):
         '''Glavna metoda minimax.'''
@@ -56,14 +58,14 @@ class Minimax:
             logging.debug("Minimax prekinja, globina = {0}".format(globina))
             return (None, 0)
         zmagovalec = self.igra.stanje_igre()
-        if zmagovalec in ('bel', 'crn', 'neodloceno'):
+        if zmagovalec in (sah2.BELI, sah2.CRNI, sah2.REMI):
             # Igre je konec, vrnemo njeno vrednost
-            if zmagovalec == self.jaz:
-                return (None, Minimax.ZMAGA)
-            elif zmagovalec == self.nasprotnik:
-                return (None, -Minimax.ZMAGA)
-            else:
+            if zmagovalec == sah2.REMI:
                 return (None, 0)
+            elif zmagovalec == self.jaz:
+                return (None, Minimax.ZMAGA)
+            else:
+                return (None, -Minimax.ZMAGA)
         elif zmagovalec is None:
             # Igre ni konec
             if globina == 0:

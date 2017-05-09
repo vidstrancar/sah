@@ -15,7 +15,7 @@ from clovek import *
 from racunalnik import *
 from minimax import *
 
-MINIMAX_GLOBINA = 1 # PROBLEM # 1: minimax dela za globino 2, za 1 pa ne...
+MINIMAX_GLOBINA = 2
 
 
 class Sahovnica():
