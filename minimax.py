@@ -20,13 +20,12 @@ class Minimax:
         '''Izračuna 'najboljšo' potezo za trenutno stanje igre.'''
         # To metodo pokličemo iz vzporednega vlakna.
         self.igra = igra
+        self.jaz = self.igra.na_vrsti # Da ne poveženo dveh spremenljivk # PROBLEM # 4
         self.prekinitev = False # Glavno vlakno bo to nastavilo na True, če moramo nehati
-        self.jaz = 'bel' if self.igra.na_vrsti == 'bel' else 'crn' # Da ne poveženo dveh spremenljivk # PROBLEM # 4
         self.poteza = None # Sem napišemo potezo, ki jo najedmo
         # Poženemo minimax
         (poteza, vrednost) = self.minimax(self.globina, True)
         self.jaz = None
-        self.nasprotnik = None
         self.igra = None
         if not self.prekinitev:
             # Potezo izvedemo v primeru, da nismo bili prekinjeni
@@ -110,36 +109,3 @@ class Minimax:
 
         else:
             assert False, "minimax: nedefinirano stanje igre"
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

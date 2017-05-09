@@ -146,10 +146,6 @@ class Sah():
     def __init__(self):
         self.igra = [] # Zgodovina igre
         self.na_vrsti = 'bel'
-        self.zmagovalec = None
-
-
-
         self.figure = {'bel': [Kmet((6, i), 'bel') for i in range(8)] +
                               [Trdnjava((7, 0), 'bel'), Trdnjava((7, 7), 'bel'),
                                Konj((7, 1), 'bel'), Konj((7, 6), 'bel'),
@@ -179,8 +175,7 @@ class Sah():
         for figura in self.figure[self.na_vrsti]:
             if len(list(self.dovoljene_poteze_iterator(figura))) > 0:
                 return None # Zmagovalca še nimamo
-        self.zmagovalec = self.nasprotna_barva()
-        return self.zmagovalec
+        return self.nasprotna_barva()
 
     def vrni_kralja_na_vrsti(self):
         '''Vrne figuro nasprotnega kralja.'''
@@ -231,7 +226,6 @@ class Sah():
         pojedena_figura = self.slika[i_k][j_k]  # Lahko je tudi None
         if pojedena_figura is not None:
             pojedena_figura.pojej() # Spremeni ji koordinate na (-1, -1), figura.ziv = False
-            pojedena_figura.ziv = False
         # Spremenimo stanje v matriki
         self.slika[i_z][j_z] = None
         self.slika[i_k][j_k] = figura
@@ -312,4 +306,3 @@ class Sah():
         return False
 
 # sahec = Sah()
-

@@ -138,7 +138,8 @@ class Sahovnica():
 
     def klik(self, event):
         '''Ogdovori na klik uporabnika. Sporočimo tistemu, ki je na potezi'''
-        if self.sah.zmagovalec is None:
+        zmagovalec = self.sah.stanje_igre()
+        if zmagovalec is None:
             i = int((event.y - Sahovnica.ODMIK) // Sahovnica.VELIKOST_POLJA) # vrstica
             j = int((event.x - Sahovnica.ODMIK) // Sahovnica.VELIKOST_POLJA) # stolpec
             poteza = (i, j)
@@ -187,9 +188,9 @@ class Sahovnica():
                 self.igralec_crni.igraj()
 
             # Preverimo, ali je prišlo do zmage
-            self.sah.stanje_igre()
-            if self.sah.zmagovalec is not None:
-                self.izpis_potez.set('Zmagal je {}i.'.format(self.sah.zmagovalec))
+            zmagovalec = self.sah.stanje_igre()
+            if zmagovalec is not None:
+                self.izpis_potez.set('Zmagal je {}i.'.format(zmagovalec))
         else:
             self.izpis_potez.set('Neveljavna poteza. Na potezi je {}i.'.format(self.sah.na_vrsti))
 
