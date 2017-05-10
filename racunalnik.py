@@ -2,7 +2,7 @@ import threading # za vzporedno izvajanje
 import logging
 
 from minimax import *
-from sah2 import *
+from logika import *
 
 class Racunalnik():
     def __init__(self, gui, algoritem):

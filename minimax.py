@@ -1,5 +1,5 @@
 import logging
-import sah2
+import logika
 
 class Minimax:
     # Objekt, ki hrani stanje igre in algoritma, nima pa dostopa do GUI,
@@ -42,7 +42,7 @@ class Minimax:
         for i in range(8):
             for j in range(8):
                 figura = self.igra.plosca[i][j]
-                if figura != sah2.PRAZNO:
+                if figura != logika.PRAZNO:
                     if figura.barva == self.jaz:
                         vsota_figur += figura.vrednost
                     else:
@@ -58,9 +58,9 @@ class Minimax:
             logging.debug("Minimax prekinja, globina = {0}".format(globina))
             return (None, 0)
         zmagovalec = self.igra.stanje_igre()
-        if zmagovalec in (sah2.BELI, sah2.CRNI, sah2.REMI):
+        if zmagovalec in (logika.BELI, logika.CRNI, logika.REMI):
             # Igre je konec, vrnemo njeno vrednost
-            if zmagovalec == sah2.REMI:
+            if zmagovalec == logika.REMI:
                 return (None, 0)
             elif zmagovalec == self.jaz:
                 return (None, Minimax.ZMAGA)

@@ -10,7 +10,7 @@ import argparse        # za argumente iz ukazne vrstice
 import logging         # za odpravljanje napak
 import os
 
-import sah2
+import logika
 from clovek import *
 from racunalnik import *
 from minimax import *
@@ -91,7 +91,7 @@ class Sahovnica():
         self.prekini_igralce()
 
         # Začnemo novo igro
-        self.sah = sah2.Sah()
+        self.sah = logika.Sah()
         self.vzpostavi_slike_figur()
         self.prikaz_figur()
         self.izpis_potez.set("Na potezi je beli.")
@@ -143,10 +143,10 @@ class Sahovnica():
             j = int((event.x - Sahovnica.ODMIK) // Sahovnica.VELIKOST_POLJA) # stolpec
             poteza = (i, j)
             logging.debug("Klik na polje {0}".format((i,j)))
-            if sah2.v_sahovnici(poteza):
-                if self.sah.na_vrsti == sah2.BELI:
+            if logika.v_sahovnici(poteza):
+                if self.sah.na_vrsti == logika.BELI:
                     self.igralec_beli.klik(poteza)
-                elif self.sah.na_vrsti == sah2.CRNI:
+                elif self.sah.na_vrsti == logika.CRNI:
                     self.igralec_crni.klik(poteza)
                 else:
                     # Nihče ni na potezi, zato ne naredimo nič.
@@ -160,7 +160,7 @@ class Sahovnica():
         '''Prebere prvi in drugi klik.'''
         i, j = polje
         if self.oznaceno_polje is None:
-            if (self.sah.plosca[i][j] != sah2.PRAZNO) and (self.sah.na_vrsti == self.sah.plosca[i][j].barva):
+            if (self.sah.plosca[i][j] != logika.PRAZNO) and (self.sah.na_vrsti == self.sah.plosca[i][j].barva):
                 self.oznaceno_polje = polje
                 logging.debug("označili smo polje {0}".format(self.oznaceno_polje))
                 plava = [poteza[1] for poteza in self.sah.poteze_polja(polje)]
@@ -182,10 +182,10 @@ class Sahovnica():
             self.izpis_potez.set('Zmagal je {}.'.format(zmagovalec))
         else:
             # igro nadaljujemo
-            if self.sah.na_vrsti == sah2.BELI:
+            if self.sah.na_vrsti == logika.BELI:
                 self.izpis_potez.set('Na potezi je {}.'.format(self.sah.na_vrsti))
                 self.igralec_beli.igraj()
-            elif self.sah.na_vrsti == sah2.CRNI:
+            elif self.sah.na_vrsti == logika.CRNI:
                 self.izpis_potez.set('Na potezi je {}.'.format(self.sah.na_vrsti))
                 self.igralec_crni.igraj()
             else:
@@ -194,8 +194,8 @@ class Sahovnica():
     def vzpostavi_slike_figur(self):
         '''Poveže vsako figuro z njeno sliko.'''
         self.slike_figur = dict()
-        for barva in (sah2.BELI, sah2.CRNI):
-            for vrsta in (sah2.KRALJ, sah2.KRALJICA, sah2.TRDNJAVA, sah2.LOVEC, sah2.KONJ, sah2.KMET):
+        for barva in (logika.BELI, logika.CRNI):
+            for vrsta in (logika.KRALJ, logika.KRALJICA, logika.TRDNJAVA, logika.LOVEC, logika.KONJ, logika.KMET):
                 datoteka = os.path.join(os.path.dirname(__file__), 'slike_figur', '{}_{}.gif'.format(vrsta, barva))
                 self.slike_figur[(barva, vrsta)] = tk.PhotoImage(file=datoteka)
 
@@ -207,7 +207,7 @@ class Sahovnica():
         for i in range(8):
             for j in range(8):
                 figura = self.sah.plosca[i][j]
-                if figura != sah2.PRAZNO:
+                if figura != logika.PRAZNO:
                     foto = self.slike_figur[(figura.barva, figura.vrsta)]
                     x = Sahovnica.ODMIK + (j * Sahovnica.VELIKOST_POLJA) + Sahovnica.VELIKOST_POLJA/2
                     y = Sahovnica.ODMIK + (i * Sahovnica.VELIKOST_POLJA) + Sahovnica.VELIKOST_POLJA/2
