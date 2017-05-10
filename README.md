@@ -1,10 +1,10 @@
-Standardni šah
+Standardni Å¡ah
 
-Šah poženemo z zagonom datoteke sah.py
+Å¡ah poÅ¾enemo z zagonom datoteke sah.py
 
-Ima tri naèine igre:
-1. èlovek - èlovek, kjer sta oba èloveška igralca prisotna na istem raèunalniku in izmenjujoèe izbirata poteze
-2. èlovek - raèunalnik, kjer igra bele figure èlovek in èrne raèunalnik
-3. raèunalnik - raèunalnik, kjer lahko le opazujemo igro dveh raèunalnikov
+Ima tri naÄine igre:
+1. Älovek - Älovek, kjer sta oba ÄloveÅ¡ka igralca prisotna na istem raÄunalniku in izmenjujoÄe izbirata poteze
+2. Älovek - raÄunalnik, kjer igra bele figure Älovek in Ärne raÄunalnik
+3. raÄunalnik - raÄunalnik, kjer lahko le opazujemo igro dveh raÄunalnikov
 
-Med naèini preklapljamo v menuju 'Igra', ki se nahaja v zgornjem levem kotu okna.
+Med naÄini preklapljamo v menuju 'Igra', ki se nahaja v zgornjem levem kotu okna.
