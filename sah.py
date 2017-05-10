@@ -1,13 +1,13 @@
 # GUI: risanje in zaznavanje klikov
 
 # Zvrsti graficnih objektov
-POLJE="polje" # ta se nariše enkrat in se potem ne briše več
+POLJE="polje" # Ta se nariše enkrat in se potem ne briše več
 FIGURA="figura"
 PLAVI="plavi"
 
 import tkinter as tk
-import argparse        # za argumente iz ukazne vrstice
-import logging         # za odpravljanje napak
+import argparse        # Za argumente iz ukazne vrstice
+import logging         # Za odpravljanje napak
 import os
 
 import logika
@@ -19,12 +19,12 @@ MINIMAX_GLOBINA = 2
 
 
 class Sahovnica():
-    # nastavitve velikosti
+    # Nastavitve velikosti
     VELIKOST_POLJA = 100
     ODMIK = 30
 
     def __init__(self, master, globina):
-        self.igralec_beli = None # (nastavimo ob začetku igre)
+        self.igralec_beli = None # Nastavimo ob začetku igre
         self.igralec_crni = None
         self.sah = None
 
@@ -42,7 +42,8 @@ class Sahovnica():
                               command=lambda: self.zacni_igro(Clovek(self), Clovek(self)))
         menu_igra.add_command(label="Človek - Računalnik",
                               command=lambda: self.zacni_igro(Clovek(self), Racunalnik(self, Minimax(globina))))
-
+        menu_igra.add_command(label="Računalnik - Človek",
+                              command=lambda: self.zacni_igro(Racunalnik(self, Minimax(globina)), Clovek(self)))
         menu_igra.add_command(label="Računalnik - Računalnik",
                               command=lambda: self.zacni_igro(Racunalnik(self, Minimax(globina)), Racunalnik(self, Minimax(globina))))
 
@@ -56,11 +57,11 @@ class Sahovnica():
         # Slovar slik vseh figur
         self.slike_figur = None
 
-        # narišemo šahovnico
+        # Narišemo šahovnico
         self.narisi_sahovnico()
 
 
-        # registriramo se za klike z miško in tipkovnico
+        # Registriramo se za klike z miško in tipkovnico
         self.plosca.bind('<Button-1>', self.klik)
         self.plosca.bind('<Control-z>', self.vrni_potezo)
         self.plosca.focus_force()
@@ -72,22 +73,21 @@ class Sahovnica():
 
 
         # Začnemo igro v načinu __ proti __
-        self.zacni_igro(Clovek(self), Clovek(self))
+        # self.zacni_igro(Clovek(self), Clovek(self))
         # self.zacni_igro(Clovek(self), Racunalnik(self, Minimax(globina)))
-        # self.zacni_igro(Racunalnik(self, Minimax(globina)), Racunalnik(self, Minimax(globina)))
         # self.zacni_igro(Racunalnik(self, Minimax(globina)), Clovek(self))
-
+        self.zacni_igro(Racunalnik(self, Minimax(globina)), Racunalnik(self, Minimax(globina)))
 
 
     def vrni_potezo(self, event):
+        '''Razveljavi zadnjo potezo.'''
         self.izpis_potez.set('Vračamo potezo.')
-        # if isinstance(self.igralec_beli, Clovek) and isinstance(self.igralec_crni, Clovek):
         self.sah.vrni_potezo()
         self.prikaz_figur()
 
     def zacni_igro(self, beli, crni):
         '''Nastavi stanje na začetek igre. Za igralca uporabi dana igralca.'''
-        # Ustavimo vse igralce, ki morda razmišljajo.
+        # Ustavimo vse igralce, ki morda razmišljajo
         self.prekini_igralce()
 
         # Začnemo novo igro
@@ -100,7 +100,7 @@ class Sahovnica():
         self.igralec_beli = beli
         self.igralec_crni = crni
 
-        # nastavi odštevalnik ure in predaj potezo belemu
+        # Nastavi odštevalnik ure in predaj potezo belemu
         self.igralec_beli.igraj()
 
 
@@ -118,14 +118,14 @@ class Sahovnica():
 
     def narisi_sahovnico(self):
         '''Nariše šahovnico 8d X 8d. Desno spodaj je belo polje.'''
-        x1, y1 = Sahovnica.ODMIK, Sahovnica.ODMIK  # določimo odmik
-        for i in range(8):  # vrstice
-            for j in range(8):  # stolpci
+        x1, y1 = Sahovnica.ODMIK, Sahovnica.ODMIK  # Določimo odmik
+        for i in range(8):  # Vrstice
+            for j in range(8):  # Stolpci
                 barva = "white" if (i + j) % 2 == 0 else "gray"
                 self.plosca.create_rectangle(x1, y1, x1 + Sahovnica.VELIKOST_POLJA, y1 + Sahovnica.VELIKOST_POLJA,
                                                         fill=barva, tag=POLJE)
-                x1 += Sahovnica.VELIKOST_POLJA  # naslednji kvadratek v vrsti
-            x1, y1 = Sahovnica.ODMIK, Sahovnica.ODMIK + Sahovnica.VELIKOST_POLJA * (i + 1)  # premaknemo se eno vrstico navzdol
+                x1 += Sahovnica.VELIKOST_POLJA  # Naslednji kvadratek v vrsti
+            x1, y1 = Sahovnica.ODMIK, Sahovnica.ODMIK + Sahovnica.VELIKOST_POLJA * (i + 1)  # Premaknemo se eno vrstico navzdol
 
     def narisi_plave(self, plave_tocke):
         '''Z modro pobarva polja, na katere se označena figura lahko premakne..'''
@@ -136,11 +136,11 @@ class Sahovnica():
             self.plosca.create_rectangle(x1, y1, x1 + Sahovnica.VELIKOST_POLJA, y1 + Sahovnica.VELIKOST_POLJA, fill=barva, tag=PLAVI)
 
     def klik(self, event):
-        '''Ogdovori na klik uporabnika. Sporočimo tistemu, ki je na potezi'''
+        '''Odgovori na klik uporabnika. Sporočimo tistemu, ki je na potezi'''
         zmagovalec = self.sah.stanje_igre()
         if zmagovalec is None:
-            i = int((event.y - Sahovnica.ODMIK) // Sahovnica.VELIKOST_POLJA) # vrstica
-            j = int((event.x - Sahovnica.ODMIK) // Sahovnica.VELIKOST_POLJA) # stolpec
+            i = int((event.y - Sahovnica.ODMIK) // Sahovnica.VELIKOST_POLJA) # Vrstica
+            j = int((event.x - Sahovnica.ODMIK) // Sahovnica.VELIKOST_POLJA) # Stolpec
             poteza = (i, j)
             logging.debug("Klik na polje {0}".format((i,j)))
             if logika.v_sahovnici(poteza):
@@ -149,29 +149,29 @@ class Sahovnica():
                 elif self.sah.na_vrsti == logika.CRNI:
                     self.igralec_crni.klik(poteza)
                 else:
-                    # Nihče ni na potezi, zato ne naredimo nič.
+                    # Nihče ni na potezi, zato ne naredimo nič
                     pass
             else:
-                logging.debug("klik izven ploše")
+                logging.debug("klik izven plošče")
         else:
             logging.debug("Klik v stanju igre {0}".format(zmagovalec))
 
     def razberi_potezo(self, polje):
-        '''Prebere prvi in drugi klik.'''
+        '''Prebere katero polje je označil igralec na vrsti.'''
         i, j = polje
         if self.oznaceno_polje is None:
             if (self.sah.plosca[i][j] != logika.PRAZNO) and (self.sah.na_vrsti == self.sah.plosca[i][j].barva):
                 self.oznaceno_polje = polje
                 logging.debug("označili smo polje {0}".format(self.oznaceno_polje))
                 plava = [poteza[1] for poteza in self.sah.poteze_polja(polje)]
-                self.prikaz_figur(plave_tocke = plava) # pobarvamo dovoljena polja
-        else: # Figuro že imamo označeno
+                self.prikaz_figur(plave_tocke = plava) # Pobarvamo dovoljena polja
+        else: # Polje že imamo označeno
             self.premakni_figuro(self.oznaceno_polje, polje)
 
     def premakni_figuro(self, polje1, polje2):
         '''Premakne figuro, če je poteza veljavna.'''
         logging.debug('gui prejel ukaz, naj premakne {} na {}'.format(polje1, polje2))
-        veljavna = self.sah.naredi_potezo((polje1, polje2))
+        self.sah.naredi_potezo((polje1, polje2))
         # V vsakem primeru polje odznacimo
         self.oznaceno_polje = None
         self.prikaz_figur()
@@ -181,7 +181,7 @@ class Sahovnica():
         if zmagovalec is not None:
             self.izpis_potez.set('Zmagal je {}.'.format(zmagovalec))
         else:
-            # igro nadaljujemo
+            # Igro nadaljujemo
             if self.sah.na_vrsti == logika.BELI:
                 self.izpis_potez.set('Na potezi je {}.'.format(self.sah.na_vrsti))
                 self.igralec_beli.igraj()
@@ -248,12 +248,3 @@ if __name__ == "__main__":
 
 
 
-#==========================================================================
-def koncaj_igro(self, zmagovalec):
-    '''Nastavi stanje igre na konec igre.'''
-    if zmagovalec == IGRALEC_BELI:
-        self.izpis_potez.set('Zmagal je beli.')
-    elif zmagovalec == IGRALEC_CRNI:
-        self.izpis_potez.set('Zmagal je črni.')
-    else:
-        self.izpis_potez.set('Neodločeno.')

@@ -2,8 +2,8 @@ import logging
 import logika
 
 class Minimax:
-    # Objekt, ki hrani stanje igre in algoritma, nima pa dostopa do GUI,
-    # ker ga ne sme uporablati, saj deluje v drugem vlaknu kot tkinter.
+    '''Objekt, ki hrani stanje igre in algoritma, nima pa dostopa do GUI.
+    Ker ga ne sme uporablati, saj deluje v drugem vlaknu kot tkinter'''
 
     def __init__(self, globina):
         self.globina = globina
@@ -20,7 +20,7 @@ class Minimax:
         '''Izračuna 'najboljšo' potezo za trenutno stanje igre.'''
         # To metodo pokličemo iz vzporednega vlakna.
         self.igra = igra
-        self.jaz = self.igra.na_vrsti # Da ne poveženo dveh spremenljivk # PROBLEM # 4
+        self.jaz = self.igra.na_vrsti
         self.prekinitev = False # Glavno vlakno bo to nastavilo na True, če moramo nehati
         self.poteza = None # Sem napišemo potezo, ki jo najedmo
         # Poženemo minimax

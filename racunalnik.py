@@ -1,4 +1,4 @@
-import threading # za vzporedno izvajanje
+import threading # Za vzporedno izvajanje
 import logging
 
 from minimax import *
@@ -25,7 +25,7 @@ class Racunalnik():
 
     def preveri_potezo(self):
         '''Vsakih 100ms preveri, ali je algoritem že izračunal potezo.'''
-        if self.algoritem.poteza is not None: # ENA VELIKA ZMEŠNJAVA: None in (None, None) !!!
+        if self.algoritem.poteza is not None:
             # Algoritem je že našel potezo. Povlečemo jo, če ni bilo prekinitve.
             figura, poteza = self.algoritem.poteza
             logging.debug('Računalnik je našel potezo: {} premakne na {}'.format(figura, poteza))

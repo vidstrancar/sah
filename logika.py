@@ -137,7 +137,7 @@ zacetne_pozicije = {
     (7,6) : Konj(BELI),
     (7,7) : Trdnjava(BELI)
 }
-# dodamo še kmete
+# Dodamo še kmete
 for i in range(8):
     zacetne_pozicije[(1,i)] = Kmet(CRNI)
     zacetne_pozicije[(6,i)] = Kmet(BELI)
@@ -175,7 +175,7 @@ class Sah():
                 if len(tuple(self.poteze_polja((i,j)))) > 0:
                     return None # Možna je poteza, ni konec
         if self.je_sah(self.na_vrsti):
-            # kralj je šahu, a ni možne poteze
+            # Kralj je šahu, a ni možne poteze
             return self.nasprotna_barva()
         else:
             return REMI
@@ -257,10 +257,8 @@ class Sah():
             logging.debug('sah prejel veljavno potezo {0} -> {1}'.format(polje1, polje2))
             self.shrani_igro()
             self.premakni_figuro(polje1, polje2)
-            return True
         else:
             logging.debug('sah prejel neveljavno potezo {0} -> {1}, na potezi je {2}, dovoljene so {3}'.format(polje1, polje2, self.na_vrsti, dovoljene))
-            return False
 
     def vse_poteze(self):
         '''Vrne seznam vseh veljavnih potez v dani situaciji.'''
@@ -274,7 +272,7 @@ class Sah():
         (i,j) = polje
         figura = self.plosca[i][j]
         if figura == PRAZNO or figura.barva != self.na_vrsti:
-            # polje je prazno ali pa figura, ki je tu, ni na potezi
+            # Polje je prazno ali pa figura, ki je tu, ni na potezi
             pass
         else:
             premiki = tuple(figura.dovoljeni_premiki(self, i, j))
