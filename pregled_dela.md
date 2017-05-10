@@ -11,7 +11,7 @@ Govorilna ura s profesorjem.
 4. teden:
 Dokončanje načina človek - človek.
 
-5. - 6. teden:
+5. in 6. teden:
 Začetek implementacije minimaxa. Popravljanje neskladja med matriko in slovarjem figur.
 
 7. teden:
