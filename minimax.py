@@ -1,6 +1,8 @@
 import logging
 import logika
 
+import random
+
 class Minimax:
     '''Objekt, ki hrani stanje igre in algoritma, nima pa dostopa do GUI.
     Ker ga ne sme uporablati, saj deluje v drugem vlaknu kot tkinter'''
@@ -75,7 +77,9 @@ class Minimax:
                 if maksimiziramo:
                     najboljsa_poteza = None
                     vrednost_najboljse = -Minimax.NESKONCNO
-                    for poteza in self.igra.vse_poteze():
+                    poteze = list(self.igra.vse_poteze())
+                    random.shuffle(poteze)
+                    for poteza in poteze:
                         self.igra.naredi_potezo(poteza)
                         vrednost = self.minimax(globina-1, not maksimiziramo)[1]
                         self.igra.vrni_potezo()
@@ -85,7 +89,9 @@ class Minimax:
                 else:
                     najboljsa_poteza = None
                     vrednost_najboljse = Minimax.NESKONCNO
-                    for poteza in self.igra.vse_poteze():
+                    poteze = list(self.igra.vse_poteze())
+                    random.shuffle(poteze)
+                    for poteza in poteze:
                         self.igra.naredi_potezo(poteza)
                         vrednost = self.minimax(globina-1, not maksimiziramo)[1]
                         self.igra.vrni_potezo()
